@@ -1,0 +1,1973 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>搜尋版圖</title>
+<meta name="description" content="替品牌整理各地區該搶的搜尋字、該做的頁面、競品缺口和可用網域，產出 Markdown 與 LINE 報告。">
+<meta property="og:title" content="搜尋版圖">
+<meta property="og:description" content="SEO 與地區關鍵字策略、競品缺口、網域即時查詢與報告產出。">
+<meta name="theme-color" content="#F4F8FA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0C141A" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230A56A0'/%3E%3Ccircle cx='32' cy='32' r='19' fill='none' stroke='white' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='9' fill='none' stroke='white' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* 版面：測繪工作台——手機單欄由上而下；桌機左欄填品牌資料、右欄攤開成果；頁首是等高線地圖紙 */
+:root{
+  --paper:#F4F8FA;
+  --sheet:#FFFFFF;
+  --ink:#0E1C27;
+  --ink-2:#435866;
+  --rule:#C9D6DE;
+  --contour:#D3E0E8;
+  --accent:#0A56A0;
+  --accent-ink:#FFFFFF;
+  --accent-soft:#E2EDF8;
+  --mark:#FFE38A;
+  --serp-link:#1A0DAB;
+  --good:#17703D; --good-bg:#E2F3E8;
+  --warn:#8A5A00; --warn-bg:#FFF1CF;
+  --bad:#A8231B; --bad-bg:#FCE6E3;
+  --shadow:0 1px 0 rgba(14,28,39,.05),0 12px 30px -20px rgba(14,28,39,.45);
+  --f-display:"LXGW WenKai TC","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Heiti TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#0C141A; --sheet:#131E26; --ink:#E5EDF2; --ink-2:#A6B8C3; --rule:#2A3A45; --contour:#1A2832;
+    --accent:#7DB4F5; --accent-ink:#06223F; --accent-soft:#163049; --mark:#5A4812; --serp-link:#8AB4F8;
+    --good:#73D49D; --good-bg:#11301F; --warn:#F0C25A; --warn-bg:#33270B; --bad:#FF8D84; --bad-bg:#3A1714;
+    --shadow:0 1px 0 rgba(0,0,0,.35),0 12px 30px -20px rgba(0,0,0,.9);
+    color-scheme:dark;
+  }
+}
+
+html{font-size:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--paper)}
+html[data-scale="lg"]{font-size:112.5%}
+html[data-scale="xl"]{font-size:125%}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1.0625rem;line-height:1.7;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+h1,h2,h3{text-wrap:balance}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.hint{color:var(--ink-2);font-size:.9375rem;line-height:1.6}
+
+/* 頁首：等高線地圖紙 */
+.masthead{background-color:var(--paper);background-image:repeating-radial-gradient(ellipse 130% 95% at 96% -10%,transparent 0 21px,var(--contour) 21px 22.5px);border-bottom:2px solid var(--ink)}
+.masthead-in{max-width:1240px;margin:0 auto;padding-block:26px 20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end;justify-content:space-between}
+.brandmark{display:grid;gap:6px;min-width:0;max-width:38rem}
+.eyebrow{font-family:var(--f-mono);font-size:.9375rem;letter-spacing:.06em;color:var(--ink-2)}
+.brandmark h1{font-family:var(--f-display);font-weight:700;font-size:2.75rem;line-height:1.05;letter-spacing:.06em;margin:0}
+.brandmark p.tagline{font-size:1.0625rem;color:var(--ink)}
+.scale{display:flex;align-items:center;gap:8px}
+.scale .lab{font-size:.9375rem;color:var(--ink-2)}
+.seg{display:inline-flex;border:1.5px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--sheet)}
+.seg button{min-height:40px;min-width:3.25rem;padding:0 12px;border:0;border-right:1px solid var(--rule);background:transparent;color:var(--ink);font:inherit;font-size:.9375rem;font-weight:700;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+
+/* 主體 */
+.desk{max-width:1240px;margin:0 auto;padding-block:20px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+@media (min-width:980px){
+  .desk{grid-template-columns:minmax(320px,400px) minmax(0,1fr);align-items:start;gap:32px}
+  .intake{position:sticky;top:calc(env(safe-area-inset-top,0px) + 14px);max-height:calc(100vh - 28px);overflow:auto}
+}
+
+/* 輸入面板 */
+.intake{background:var(--sheet);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow);padding:18px 18px 20px;display:grid;gap:16px;min-width:0}
+.intake-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.intake-head h2{font-family:var(--f-display);font-size:1.5rem;margin:0}
+.badge-ex{display:inline-block;background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn);border-radius:999px;padding:1px 12px;font-size:.9375rem;font-weight:700}
+.field{display:grid;gap:6px;min-width:0;border:0;margin:0;padding:0}
+.field > label,.flabel{font-weight:700;padding:0}
+.req{font-weight:500;color:var(--ink-2);font-size:.9375rem;margin-left:4px}
+input[type="text"],input[type="search"],input[type="password"],textarea,select.select{width:100%;min-height:48px;padding:10px 12px;border:1.5px solid var(--rule);border-radius:10px;background:var(--paper);color:var(--ink);font:inherit;font-size:1.0625rem;line-height:1.5}
+textarea{min-height:5.5em;resize:vertical}
+textarea.short{min-height:3.6em}
+input[type="text"]:focus,input[type="search"]:focus,input[type="password"]:focus,textarea:focus,select.select:focus{border-color:var(--accent);outline:3px solid var(--accent-soft);outline-offset:0}
+input[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--bad)}
+.err{color:var(--bad);font-size:.9375rem;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);font:inherit;font-size:1rem;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.chip.custom{display:inline-flex;align-items:center;gap:6px;background:var(--mark);border-color:transparent;color:var(--ink);font-weight:500}
+.chip.custom .x{font-weight:700;color:var(--ink-2)}
+.addrow{display:flex;gap:8px;align-items:stretch}
+.addrow input{flex:1 1 auto;min-width:0}
+.opt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;cursor:pointer}
+.opt input{width:1.375rem;height:1.375rem;margin:.22rem 0 0;accent-color:var(--accent)}
+.opt b{display:block}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* 按鈕 */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:10px;border:1.5px solid var(--rule);background:var(--sheet);color:var(--ink);font:inherit;font-size:1rem;font-weight:700;line-height:1.2;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--ink-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.big{min-height:52px;padding:0 26px;font-size:1.0625rem;flex:1 1 auto}
+.btn.small{min-height:40px;padding:0 12px;font-size:.9375rem}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--accent);padding:0 8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* 分析進度與訊息 */
+.run{display:grid;gap:10px;padding:14px;border-radius:12px;background:var(--accent-soft)}
+.run-top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.stages{display:flex;flex-wrap:wrap;gap:6px}
+.stage{font-size:.9375rem;padding:1px 10px;border-radius:999px;border:1px solid var(--rule);color:var(--ink-2);background:var(--sheet)}
+.stage.done{color:var(--good);border-color:var(--good)}
+.stage.now{color:var(--accent-ink);background:var(--accent);border-color:var(--accent);font-weight:700}
+.stage.fail{color:var(--bad);border-color:var(--bad);background:var(--bad-bg)}
+.msg{padding:12px 14px;border-radius:10px;font-weight:500;line-height:1.6}
+.msg.good{background:var(--good-bg);color:var(--good)}
+.msg.warn{background:var(--warn-bg);color:var(--warn)}
+.msg.bad{background:var(--bad-bg);color:var(--bad)}
+.avail{display:grid;gap:10px;justify-items:start}
+
+/* 成果 */
+.results{min-width:0}
+.result-head{display:grid;gap:10px;padding-block:4px 10px}
+.result-head .eyebrow{display:block;margin-bottom:2px}
+.result-head .eyebrow.ex{color:var(--warn);font-weight:600}
+.res-title{font-family:var(--f-display);font-size:2rem;line-height:1.2;margin:0;word-break:keep-all;overflow-wrap:anywhere}
+.res-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.res-tools .select{width:auto;max-width:100%;min-height:40px;padding:6px 10px;font-size:1rem}
+.secnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:6px;overflow-x:auto;padding-block:10px;background:var(--paper);border-bottom:1px solid var(--rule);scrollbar-width:none}
+.secnav::-webkit-scrollbar{display:none}
+.navchip{flex:0 0 auto;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);font:inherit;font-size:.9375rem;font-weight:700;cursor:pointer}
+.sec{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 72px);padding-block:24px;border-bottom:1px solid var(--rule);display:grid;gap:14px;min-width:0}
+.sec:last-child{border-bottom:0}
+.sec h2{font-family:var(--f-display);font-weight:700;font-size:1.75rem;line-height:1.25;margin:0}
+.sec h3.sub-h{font-size:1.125rem;margin:6px 0 0}
+.sec .sub{color:var(--ink-2);max-width:42rem}
+.lead{font-size:1.125rem;max-width:42rem}
+.position{font-family:var(--f-display);font-size:1.375rem;line-height:1.65;max-width:40rem}
+.position span{background:linear-gradient(transparent 56%,var(--mark) 56%);-webkit-box-decoration-break:clone;box-decoration-break:clone;padding:0 2px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin:0}
+.fact{background:var(--sheet);padding:12px 14px;min-width:0}
+.fact dt{font-size:.9375rem;color:var(--ink-2)}
+.fact dd{margin:2px 0 0;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.fact-sub{display:block;font-weight:500;font-size:.9375rem;color:var(--ink-2)}
+.empty{color:var(--ink-2);padding:14px 0}
+.mini{font-size:.9375rem;font-weight:700;color:var(--ink-2)}
+ul.plain{margin:0;padding-left:1.2em;display:grid;gap:4px}
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:14px;padding:16px 18px;display:grid;gap:10px;align-content:start;min-width:0}
+.card h3{font-family:var(--f-display);font-size:1.375rem;margin:0;line-height:1.3}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:16px}
+
+/* 關鍵字 */
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.filters .select{width:auto;min-width:9rem;max-width:100%;min-height:40px;padding:6px 10px;font-size:1rem}
+.filters input[type="search"]{flex:1 1 12rem;min-height:40px;padding:6px 12px;font-size:1rem}
+.count{color:var(--ink-2);font-size:.9375rem;font-variant-numeric:tabular-nums}
+.count.over{color:var(--warn);font-weight:700}
+.kw-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.kw{display:grid;grid-template-columns:2.4rem minmax(0,1fr);gap:0 14px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.prio{width:2.4rem;height:2.4rem;display:grid;place-items:center;border-radius:8px;font-weight:700;font-size:1.0625rem}
+.p-hi{background:var(--accent);color:var(--accent-ink)}
+.p-mid{background:var(--accent-soft);color:var(--accent)}
+.p-lo{border:1.5px solid var(--rule);color:var(--ink-2)}
+.kw-main{display:grid;gap:4px;min-width:0}
+.kw-term{font-weight:700;font-size:1.1875rem;line-height:1.4;overflow-wrap:anywhere}
+.kw-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{display:inline-block;padding:0 10px;border-radius:999px;border:1px solid var(--rule);font-size:.9375rem;line-height:1.7;color:var(--ink-2);background:var(--sheet)}
+.tag.comp{border-color:var(--warn);color:var(--warn);background:var(--warn-bg)}
+.kw-page{color:var(--ink-2);font-size:.9375rem}
+
+/* 地區、競品卡片內的關鍵字 */
+.kchips{display:flex;flex-wrap:wrap;gap:6px}
+.kchip{display:inline-block;background:var(--mark);color:var(--ink);padding:0 8px;border-radius:4px;font-size:.9375rem;line-height:1.75}
+.kadd{display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 10px;border:0;border-radius:6px;background:var(--mark);color:var(--ink);font:inherit;font-size:.9375rem;cursor:pointer}
+.kadd:disabled{cursor:default;opacity:.75}
+
+/* 內容規劃與行動時程：順序就是建議的先後 */
+.plan{list-style:none;margin:0;padding:0;display:grid;gap:0;counter-reset:step;border-top:1px solid var(--rule)}
+.plan > li{display:grid;grid-template-columns:2.6rem minmax(0,1fr);gap:0 12px;padding:14px 0;border-bottom:1px solid var(--rule);counter-increment:step}
+.plan > li::before{content:counter(step);font-family:var(--f-mono);font-weight:600;font-size:1.625rem;line-height:1.2;color:var(--accent);font-variant-numeric:tabular-nums}
+.plan-body{display:grid;gap:6px;min-width:0}
+.plan-title{font-weight:700;font-size:1.1875rem;line-height:1.45}
+.plan-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;color:var(--ink-2);font-size:.9375rem}
+.when{font-family:var(--f-mono);font-size:.9375rem;color:var(--accent);font-weight:600}
+
+/* Meta 與搜尋結果預覽 */
+.meta-body{display:grid;gap:14px}
+.meta-edit{display:grid;gap:12px}
+.meta-info{display:grid;gap:4px;font-size:.9375rem;color:var(--ink-2)}
+.meta-info b{color:var(--ink)}
+.serp-wrap{display:grid;gap:8px}
+.serp{background:var(--sheet);border:1px solid var(--rule);border-radius:14px;padding:16px;max-width:600px;width:100%;display:grid;gap:4px}
+.serp[data-device="mobile"]{max-width:380px}
+.serp-site{display:flex;gap:10px;align-items:center;min-width:0}
+.serp-fav{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.9375rem}
+.serp-meta{min-width:0}
+.serp-name{font-size:.9375rem;line-height:1.3}
+.serp-url{font-size:.9375rem;line-height:1.3;color:var(--ink-2);overflow-wrap:anywhere}
+.serp-title{color:var(--serp-link);font-size:1.25rem;line-height:1.35;margin-top:6px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;overflow-wrap:anywhere}
+.serp[data-device="mobile"] .serp-title{-webkit-line-clamp:2}
+.serp-desc{color:var(--ink);font-size:1rem;line-height:1.6;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.serp[data-device="mobile"] .serp-desc{-webkit-line-clamp:3}
+
+/* 檢查清單 */
+.checks{display:grid;gap:0;border-top:1px solid var(--rule)}
+.check{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;padding:12px 0;border-bottom:1px dashed var(--rule);cursor:pointer}
+.check input{width:1.375rem;height:1.375rem;margin:.22rem 0 0;accent-color:var(--accent)}
+.check input:checked + span{color:var(--ink-2);text-decoration:line-through;text-decoration-thickness:1px}
+.check b{display:block}
+
+/* 程式碼與報告 */
+pre.code,pre.report{margin:0;padding:16px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--f-mono);font-size:.9375rem;line-height:1.7;color:var(--ink);background:var(--sheet)}
+pre.code{max-height:22rem;border:1px solid var(--rule);border-radius:12px}
+pre.report{max-height:30rem}
+.report-box{border:1px solid var(--rule);border-radius:14px;background:var(--sheet);overflow:hidden;min-width:0}
+.tabs{display:flex;border-bottom:1px solid var(--rule)}
+.tab{flex:1 1 0;min-height:48px;border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:1rem;font-weight:700;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+.copy-fallback{width:100%;min-height:8rem;font-family:var(--f-mono);font-size:.9375rem;padding:10px;border:1.5px solid var(--accent);border-radius:10px;background:var(--paper);color:var(--ink)}
+
+/* 網域 */
+.notice{display:grid;gap:6px;padding:14px 16px;border-radius:12px;background:var(--accent-soft)}
+.tld-row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.dom-groups{display:grid;gap:14px}
+.dom-group{border:1px solid var(--rule);border-radius:14px;background:var(--sheet);overflow:hidden;min-width:0}
+.dom-head{padding:12px 16px;border-bottom:1px solid var(--rule);display:grid;gap:2px}
+.dom-head .base{font-family:var(--f-mono);font-weight:600;font-size:1.0625rem;overflow-wrap:anywhere}
+.dom-head .title{font-weight:700}
+.dom-row{display:grid;gap:8px;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.dom-row:last-child{border-bottom:0}
+.dom-id{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;justify-content:space-between}
+.dom-name{font-family:var(--f-mono);font-size:1.0625rem;overflow-wrap:anywhere;min-width:0}
+.dom-state{font-size:.9375rem;font-weight:700;padding:0 10px;border-radius:999px;line-height:1.75;white-space:nowrap}
+.st-none{color:var(--ink-2);border:1px solid var(--rule)}
+.st-ok{color:var(--good);background:var(--good-bg)}
+.st-taken{color:var(--bad);background:var(--bad-bg)}
+.dom-detail{color:var(--ink-2);font-size:.9375rem}
+.dom-actions{display:flex;flex-wrap:wrap;gap:8px}
+
+/* 熱度與連結 */
+.season{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:12px;overflow:hidden;margin:0}
+.season > div{background:var(--sheet);padding:12px 14px}
+.season dt{font-size:.9375rem;color:var(--ink-2)}
+.season dd{margin:2px 0 0}
+.linklist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.linklist li{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--rule)}
+.linklist li span{font-weight:700;overflow-wrap:anywhere;min-width:0}
+
+/* 競品 */
+.lvl{display:inline-block;padding:0 10px;border-radius:999px;font-size:.9375rem;font-weight:700;line-height:1.75}
+.lvl-hi{background:var(--accent);color:var(--accent-ink)}
+.lvl-mid{background:var(--accent-soft);color:var(--accent)}
+.lvl-lo{border:1px solid var(--rule);color:var(--ink-2)}
+.gap-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.gap-head b{font-size:1.125rem}
+.page-box{display:grid;gap:4px;padding:12px 14px;border:1px dashed var(--rule);border-radius:12px;font-size:.9375rem;color:var(--ink-2)}
+.page-box b{color:var(--ink)}
+
+.foot{max-width:1240px;margin:0 auto;padding-block:8px 34px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));color:var(--ink-2);font-size:.9375rem;display:grid;gap:4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:max-content;max-width:calc(100% - 32px);background:var(--ink);color:var(--paper);padding:12px 18px;border-radius:12px;box-shadow:var(--shadow);z-index:20;font-weight:500;line-height:1.5}
+@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto!important} }
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <div class="brandmark">
+      <span class="eyebrow">SEO ・ 地區 GEO ・ 競品 ・ 網域 ・ 報告</span>
+      <h1>搜尋版圖</h1>
+      <p class="tagline">替品牌整理出各地區該搶的搜尋字、該做的頁面、競品的缺口和可用的網域，最後產出 Markdown 與 LINE 報告。</p>
+    </div>
+    <div class="scale">
+      <span class="lab" id="scaleLab">字級</span>
+      <div class="seg" role="group" aria-labelledby="scaleLab">
+        <button type="button" data-scale="std" aria-pressed="true">標準</button>
+        <button type="button" data-scale="lg" aria-pressed="false">大</button>
+        <button type="button" data-scale="xl" aria-pressed="false">特大</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="desk">
+  <form id="intake" class="intake" novalidate>
+    <div class="intake-head">
+      <h2>品牌資料</h2>
+      <span id="exBadge" class="badge-ex">範例資料（虛構）</span>
+    </div>
+    <div id="availBox" class="msg warn avail" hidden>
+      <p id="availMsg"></p>
+      <button id="retryInfo" type="button" class="btn small" hidden>重新連線</button>
+    </div>
+
+    <div id="codeRow" class="field" hidden>
+      <label for="f-code">存取碼<span class="req">這個網站需要</span></label>
+      <input id="f-code" type="password" maxlength="60" autocomplete="off" placeholder="請向網站管理者索取">
+    </div>
+
+    <div class="field">
+      <label for="f-preset">套用範例</label>
+      <select id="f-preset" class="select">
+        <option value="">選一個虛構範例，看看怎麼填…</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="f-brand">品牌名稱<span class="req">必填</span></label>
+      <input id="f-brand" type="text" maxlength="40" autocomplete="organization" aria-describedby="e-brand">
+      <p id="e-brand" class="err" hidden></p>
+    </div>
+
+    <div class="field">
+      <label for="f-offer">產業、產品與服務<span class="req">必填</span></label>
+      <textarea id="f-offer" maxlength="400" placeholder="例：住家水電維修、抓漏、熱水器安裝" aria-describedby="e-offer"></textarea>
+      <p id="e-offer" class="err" hidden></p>
+    </div>
+
+    <div class="field">
+      <label for="f-feat">核心特色、賣點</label>
+      <textarea id="f-feat" class="short" maxlength="300" placeholder="例：到府快速、報價方式事先說清楚、老屋經驗多"></textarea>
+    </div>
+
+    <fieldset class="field">
+      <legend class="flabel">目標地區<span class="req">至少一個</span></legend>
+      <div id="regionChips" class="chips"></div>
+      <div class="addrow">
+        <input id="f-region" type="text" maxlength="20" placeholder="自訂，例：高雄市三民區、日本大阪" aria-label="自訂地區">
+        <button id="addRegion" type="button" class="btn">加入</button>
+      </div>
+      <div id="customRegions" class="chips"></div>
+      <p id="e-region" class="err" hidden></p>
+    </fieldset>
+
+    <div class="field">
+      <label for="f-aud">目標客群</label>
+      <input id="f-aud" type="text" maxlength="120" placeholder="例：自住屋主、房東、小型店面">
+    </div>
+
+    <div class="field">
+      <label for="f-seeds">想主打的關鍵字</label>
+      <input id="f-seeds" type="text" maxlength="160" placeholder="用頓號分開，例：抓漏、熱水器安裝">
+    </div>
+
+    <div class="field">
+      <label for="f-notes">補充事項</label>
+      <textarea id="f-notes" class="short" maxlength="300" placeholder="例：只做 B2B、醫療廣告要守法規、旺季在年底"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="f-comp">競爭對手</label>
+      <input id="f-comp" type="text" maxlength="160" placeholder="品牌名稱或網址，可留白">
+    </div>
+
+    <div class="field">
+      <label for="f-site">現有網站</label>
+      <input id="f-site" type="text" inputmode="url" autocapitalize="off" spellcheck="false" maxlength="200" placeholder="https://… 可留白">
+      <p class="hint">只把網址當背景資料，不會去讀你的網站。</p>
+    </div>
+
+    <label class="opt" for="f-aivis">
+      <input id="f-aivis" type="checkbox">
+      <span><b>加做 AI 搜尋能見度</b><span class="hint">讓 ChatGPT、Gemini、Claude 這類 AI 回答問題時，更可能正確提到你的品牌（又稱生成式引擎最佳化，是另一種 GEO）。</span></span>
+    </label>
+
+    <div class="actions">
+      <button id="runBtn" type="submit" class="btn primary big">開始分析</button>
+      <button id="stopBtn" type="button" class="btn" hidden>停止</button>
+    </div>
+    <p class="hint">分析分 4 段進行，通常要 40 秒到 2 分鐘。</p>
+    <p id="privacyNote" class="hint" hidden></p>
+
+    <div id="runPanel" class="run" hidden>
+      <div class="run-top"><b id="runTitle">分析中…</b><span id="runTime" class="mono">0 秒</span></div>
+      <div id="stages" class="stages"></div>
+    </div>
+    <p id="runMsg" class="msg" role="status" hidden></p>
+
+    <div class="actions">
+      <button id="clearBtn" type="button" class="btn quiet">清空表單</button>
+    </div>
+  </form>
+
+  <section id="results" class="results" aria-label="分析成果">
+    <div class="result-head">
+      <div>
+        <span id="resLabel" class="eyebrow"></span>
+        <h2 id="resTitle" class="res-title"></h2>
+      </div>
+      <div id="resTools" class="res-tools"></div>
+    </div>
+    <nav id="secnav" class="secnav" aria-label="成果段落"></nav>
+    <div id="resBody"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p id="backendLine"></p>
+  <p>表單、分析結果和最近 6 次分析，只存在你這台裝置的瀏覽器裡。關鍵字優先度和淡旺季是 AI 依搜尋意圖與產業性質判斷，不是搜尋量；要看真實數字，請用「熱度」與「驗證」兩段裡的官方工具。</p>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var KEY = 'soubantu.site.v1';
+  var MAX_ENTRIES = 6;
+  var REGION_PRESETS = ['台灣全區', '北北基', '桃竹苗', '中彰投', '雲嘉南', '高屏', '宜花東', '澎金馬'];
+  var TLD_LIST = ['com', 'com.tw', 'tw', 'net'];
+  var TYPES = ['核心', '長尾', '地區', '品牌', '比較', '問題'];
+  var INTENTS = ['資訊', '比較', '交易', '在地', '導航'];
+  var PRIOS = ['高', '中', '低'];
+  var PRIO_CLASS = { '高': 'p-hi', '中': 'p-mid', '低': 'p-lo' };
+  var FORMATS = ['服務頁', '地區頁', 'FAQ', '部落格', '案例', '比較頁'];
+  var STAGES_C = ['新手認知', '需求評估', '決策轉化'];
+  var LEVELS = ['高優先', '中度', '潛在'];
+  var LEVEL_CLASS = { '高優先': 'lvl-hi', '中度': 'lvl-mid', '潛在': 'lvl-lo' };
+  var LOOKUP_TW = { url: 'https://twnic.tw/', label: 'TWNIC' };
+  var LOOKUP_OTHER = { url: 'https://lookup.icann.org/', label: 'ICANN' };
+  var KP_URL = 'https://business.google.com/tw/ad-tools/keyword-planner/';
+  var GSC_URL = 'https://search.google.com/search-console';
+  var PARTS = [[1, '關鍵字與定位'], [2, '地區與內容'], [3, '標題與在地'], [4, '網域與驗證']];
+  var PROVIDER_LABEL = { gemini: 'Gemini', claude: 'Claude' };
+  var DSTAT_LABEL = { taken: '已被註冊', free: '查無註冊紀錄', unknown: '無法判斷', unsupported: '不支援線上查詢' };
+
+  var EXAMPLE_INPUTS = {
+    brand: '暖居水電工程',
+    offer: '住家水電維修、抓漏、熱水器安裝與更換、老屋管線更新',
+    features: '到府快速、處理流程與報價方式事先說清楚、老屋經驗多',
+    regions: [],
+    custom: ['高雄市', '台南市'],
+    audience: '自住屋主、房東、小型店面',
+    seeds: '抓漏、熱水器安裝',
+    notes: '',
+    competitors: '',
+    site: '',
+    aivis: false
+  };
+
+  var PRESETS = [
+    { id: 'nuanju', label: '暖居水電工程（住家水電・高雄台南）', inputs: EXAMPLE_INPUTS },
+    { id: 'coffee', label: '山嵐咖啡烘焙（咖啡豆・台中）', inputs: { brand: '山嵐咖啡烘焙', offer: '精品咖啡豆零售與批發、掛耳包、烘豆課程', features: '小批次烘焙、包裝標示烘焙日、到店可試飲', regions: ['中彰投'], custom: ['台中市西區'], audience: '在家手沖的上班族、咖啡店與辦公室', seeds: '咖啡豆推薦、台中咖啡豆', notes: '有網路商店，可宅配全台', competitors: '', site: '', aivis: false } },
+    { id: 'dental', label: '晨光牙醫診所（診所・台北大安）', inputs: { brand: '晨光牙醫診所', offer: '一般牙科、植牙、隱形矯正、兒童牙科', features: '週六也看診、治療前說明費用與療程、兒童專屬診間', regions: [], custom: ['台北市大安區'], audience: '附近上班族與家長', seeds: '大安區牙醫、植牙', notes: '醫療廣告要符合法規，不寫療效保證', competitors: '', site: '', aivis: true } },
+    { id: 'pack', label: '綠程環保包材（B2B・全台）', inputs: { brand: '綠程環保包材', offer: '可分解餐盒、紙杯、客製印刷包材', features: '小量起訂、可客製印刷、提供材質檢驗文件', regions: ['台灣全區'], custom: [], audience: '餐飲店、手搖飲、企業採購', seeds: '環保餐盒、客製紙杯', notes: '只做 B2B，不賣個人', competitors: '', site: '', aivis: false } }
+  ];
+
+  var EXAMPLE_RESULT = {
+    summary: '先用「地名＋服務」的關鍵字搶高雄、台南的在地需求，兩個城市各做一頁地區服務頁；再用抓漏、熱水器的問題型文章，接住還在比較的屋主。Google 商家檔案的服務項目和地區，要和網站寫法一致。',
+    positioning: '高雄、台南到府的住家水電與抓漏師傅，處理流程和報價方式寫得清清楚楚。',
+    keywords: [
+      { keyword: '高雄抓漏', type: '地區', intent: '交易', priority: '高', region: '高雄市', reason: '漏水通常急著處理，搜尋的人離找師傅只差一步。', page: '抓漏服務頁' },
+      { keyword: '高雄水電行', type: '地區', intent: '在地', priority: '高', region: '高雄市', reason: '「地名＋水電行」是在地找師傅最直接的寫法。', page: '高雄地區頁' },
+      { keyword: '台南水電行', type: '地區', intent: '在地', priority: '高', region: '台南市', reason: '台南要有自己的地區頁，才接得住這類搜尋。', page: '台南地區頁' },
+      { keyword: '台南抓漏推薦', type: '比較', intent: '比較', priority: '高', region: '台南市', reason: '加了「推薦」代表正在比較，案例和處理流程最有說服力。', page: '抓漏服務頁＋案例' },
+      { keyword: '熱水器安裝', type: '核心', intent: '交易', priority: '高', region: '全區', reason: '主力服務之一，服務頁要連到兩個地區頁。', page: '熱水器服務頁' },
+      { keyword: '高雄熱水器安裝', type: '地區', intent: '交易', priority: '高', region: '高雄市', reason: '服務名稱加地名，意圖很明確。', page: '熱水器服務頁' },
+      { keyword: '熱水器更換費用', type: '問題', intent: '資訊', priority: '中', region: '全區', reason: '還在估價階段，用說明費用組成的文章接住。', page: 'FAQ 文章' },
+      { keyword: '浴室漏水怎麼辦', type: '問題', intent: '資訊', priority: '中', region: '全區', reason: '問題型搜尋，文章最後導向抓漏服務。', page: '部落格文章' },
+      { keyword: '頂樓漏水處理', type: '長尾', intent: '交易', priority: '中', region: '全區', reason: '抓漏底下常見的細分需求，可以獨立成一段。', page: '抓漏服務頁' },
+      { keyword: '台南熱水器維修', type: '地區', intent: '交易', priority: '中', region: '台南市', reason: '維修比安裝更急，撥打電話按鈕要放在第一屏。', page: '熱水器服務頁' },
+      { keyword: '老屋管線更新', type: '長尾', intent: '比較', priority: '中', region: '全區', reason: '金額較高、考慮期長，要靠案例建立信任。', page: '案例頁' },
+      { keyword: '水電行到府維修', type: '長尾', intent: '交易', priority: '中', region: '全區', reason: '「到府」是服務型搜尋常見的修飾語。', page: '服務總覽' },
+      { keyword: '壁癌處理', type: '長尾', intent: '資訊', priority: '低', region: '全區', reason: '和漏水有關但需求分散，排在後面再做。', page: '部落格文章' },
+      { keyword: '暖居水電 評價', type: '品牌', intent: '導航', priority: '低', region: '全區', reason: '品牌有知名度後才會出現，先準備評價和案例。', page: '關於我們' }
+    ],
+    regions: [
+      { region: '高雄市', angle: '用行政區切入，寫清楚到府範圍，例如三民、鳳山、左營、楠梓。', keywords: ['高雄水電行', '高雄抓漏', '鳳山水電行', '左營抓漏', '高雄熱水器安裝'], actions: ['Google 商家檔案寫明服務區域和營業時間', '高雄地區頁列出服務的行政區', '案例照片標註行政區，不寫完整地址'] },
+      { region: '台南市', angle: '如果案例多是老屋，台南頁可以主打老屋管線和漏水。', keywords: ['台南水電行', '台南抓漏推薦', '永康水電行', '台南熱水器維修', '台南老屋水電'], actions: ['台南地區頁獨立撰寫，不和高雄頁共用內容', '邀請完工的客戶到 Google 留下評論', '地區頁放台南的案例'] }
+    ],
+    content: [
+      { title: '高雄水電與抓漏服務', format: '地區頁', stage: '決策轉化', keyword: '高雄水電行', outline: ['服務項目與到府範圍', '處理流程與報價方式', '高雄案例', '常見問題'] },
+      { title: '台南水電與抓漏服務', format: '地區頁', stage: '決策轉化', keyword: '台南水電行', outline: ['服務項目與到府範圍', '老屋常見的管線問題', '台南案例', '常見問題'] },
+      { title: '抓漏怎麼找漏水點？流程與費用組成', format: 'FAQ', stage: '需求評估', keyword: '高雄抓漏', outline: ['常見的漏水位置', '檢測方式', '費用由哪些項目組成', '什麼情況要馬上處理'] },
+      { title: '熱水器選電熱、瓦斯還是熱泵？', format: '比較頁', stage: '需求評估', keyword: '熱水器安裝', outline: ['三種熱水器的差別', '適合的家庭和空間', '安裝前要確認的事', '更換流程'] },
+      { title: '浴室漏水怎麼辦？先自己檢查這幾個地方', format: '部落格', stage: '新手認知', keyword: '浴室漏水怎麼辦', outline: ['先關水看水表', '檢查矽利康和排水孔', '什麼時候該找師傅'] },
+      { title: '老屋管線更新實例', format: '案例', stage: '決策轉化', keyword: '老屋管線更新', outline: ['屋況與問題', '施工範圍與工期', '完工前後對照'] }
+    ],
+    meta: [
+      { page: '首頁', title: '暖居水電工程｜高雄、台南住家水電與抓漏到府服務', description: '高雄、台南住家水電維修、抓漏、熱水器安裝與老屋管線更新。處理流程與報價方式事先說清楚，到府範圍和案例都在這裡。', slug: '/', h1: '高雄、台南的住家水電與抓漏師傅' },
+      { page: '抓漏服務頁', title: '高雄、台南抓漏｜漏水檢測流程與費用說明－暖居水電', description: '浴室、頂樓、外牆漏水怎麼找原因？說明檢測方式、處理流程和費用組成，高雄、台南都能到府評估。', slug: '/leak-repair', h1: '抓漏服務：先找到漏水點再處理' },
+      { page: '高雄地區頁', title: '高雄水電行｜三民、鳳山、左營到府維修－暖居水電', description: '高雄水電維修、抓漏、熱水器安裝，服務三民、鳳山、左營、楠梓等區。看到府範圍、處理流程與高雄案例。', slug: '/kaohsiung', h1: '高雄水電與抓漏到府服務' }
+    ],
+    local: [
+      { title: 'Google 商家檔案', action: '類別選水電相關，服務區域填高雄市與台南市，營業時間和電話與網站一致。' },
+      { title: 'LocalBusiness 結構化資料', action: '首頁加上 LocalBusiness 標記，areaServed 寫高雄市、台南市（下面有範本）。' },
+      { title: '名稱、地址、電話一致', action: '網站頁尾、商家檔案、社群粉專的名稱和電話寫法完全相同。' },
+      { title: '在地評論', action: '完工後請客戶到 Google 留評論，回覆時自然提到服務項目與地區。' }
+    ],
+    onpage: [
+      '每個服務頁的頁面標題寫「地區＋服務＋品牌」',
+      '案例照片的檔名和替代文字寫上服務與地區',
+      '手機版第一屏就看得到撥打電話按鈕',
+      '服務頁互相連結，地區頁連到對應的服務頁',
+      '每頁只放一個 H1，內容和頁面標題一致'
+    ],
+    season: {
+      peak: '梅雨與颱風季前後（大約 5 到 9 月），漏水相關搜尋可能變多；冬天熱水器需求可能較多。',
+      low: '需求較平均的月份，適合補文章和案例。',
+      why: '漏水和天氣有關、熱水器和氣溫有關。這是依服務性質推論，請用 Google 趨勢確認。',
+      related: ['頂樓防水', '熱水器沒熱水', '浴室漏水到樓下', '外牆滲水']
+    },
+    domains: [
+      { name: 'nuanju', why: '品牌拼音最短，好記好念。' },
+      { name: 'nuanju-plumbing', why: '英文服務字，看網址就知道做什麼。' },
+      { name: 'nuanjushuidian', why: '拼音全寫，口頭報網址比較不會聽錯。' }
+    ],
+    data_needed: [
+      '「高雄抓漏」「台南水電行」等字的實際搜尋量：用 Google 關鍵字規劃工具查。',
+      '網站目前有哪些字帶來點擊：看 Google Search Console 的成效報表。',
+      '排名會隨搜尋者所在位置改變：到目標地區用無痕視窗實際搜尋確認。',
+      'Google 商家檔案的瀏覽與來電次數：看商家檔案的成效資料。'
+    ],
+    assumptions: ['以住宅客戶為主', '高雄市、台南市都能到府服務', '目前還沒有網站，或網站內容很少'],
+    competitor: {
+      name: '大型水電媒合平台（虛構）',
+      basis: 'general',
+      positioning: '未提供競品頁面資料，以下為一般推論。這類平台多半用全台通用的頁面搶「水電行」這類大字，各縣市頁內容相近，在地案例少。',
+      gaps: [
+        { dimension: '地區頁內容相近', level: '高優先', detail: '各縣市頁多半只換地名，缺少在地案例與服務範圍。', counter: '高雄、台南頁各放 3 個以上在地案例和行政區清單。', keywords: ['鳳山抓漏', '左營水電行', '永康水電行'], page: '高雄、台南地區頁' },
+        { dimension: '問題型內容不足', level: '中度', detail: '平台頁面以下單為主，比較少回答屋主的實際問題。', counter: '寫漏水、熱水器的問題文章，最後導向服務頁。', keywords: ['浴室漏水到樓下', '熱水器沒熱水'], page: '部落格' },
+        { dimension: '流程與報價不一致', level: '潛在', detail: '平台由不同師傅接案，流程和報價方式不一定一致。', counter: '把自家的處理流程、報價方式寫清楚，放在服務頁上半部。', keywords: ['抓漏流程', '水電報價方式'], page: '抓漏服務頁' }
+      ],
+      quick_wins: [
+        { when: '第 1–2 週', action: '上線高雄、台南兩個地區頁，連到 Google 商家檔案', why: '先接住「地名＋服務」的搜尋' },
+        { when: '第 3–4 週', action: '改寫首頁和服務頁的標題、描述', why: '讓搜尋結果直接看到地區和服務' },
+        { when: '第 5–8 週', action: '每兩週發一篇問題型文章', why: '累積長尾搜尋的入口' }
+      ],
+      link_sources: [
+        { type: '在地社區與里民資訊網站', approach: '提供居家漏水自我檢查的小知識，請對方轉載並附上來源連結。', anchor: '高雄抓漏', pitch: '梅雨季前的居家漏水自我檢查' },
+        { type: '熱水器或建材品牌的安裝服務名單', approach: '如果有合作品牌，申請列入官網的安裝服務名單。', anchor: '暖居水電工程', pitch: '申請列入安裝服務名單' },
+        { type: '在地房仲、室內設計夥伴', approach: '互相在合作夥伴頁放連結。', anchor: '台南水電行', pitch: '交屋前水電健檢合作' }
+      ],
+      verify: ['競品實際的外部連結要用 Ahrefs、Semrush 這類付費工具才看得到。', '競品排名要到目標地區用無痕視窗搜尋確認。'],
+      at: ''
+    }
+  };
+
+  /* ---------- 小工具 ---------- */
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function h(tag, props) {
+    var n = document.createElement(tag);
+    if (props) {
+      Object.keys(props).forEach(function (k) {
+        var v = props[k];
+        if (v === null || v === undefined || v === false) return;
+        if (k === 'class') n.className = v;
+        else if (k === 'text') n.textContent = v;
+        else if (k.slice(0, 2) === 'on' && typeof v === 'function') n.addEventListener(k.slice(2), v);
+        else if (k === 'dataset') Object.keys(v).forEach(function (d) { n.dataset[d] = v[d]; });
+        else n.setAttribute(k, v === true ? '' : String(v));
+      });
+    }
+    for (var i = 2; i < arguments.length; i++) appendKid(n, arguments[i]);
+    return n;
+  }
+  function appendKid(n, c) {
+    if (c === null || c === undefined || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { appendKid(n, x); }); return; }
+    n.append(c instanceof Node ? c : String(c));
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function blankInputs() { return { brand: '', offer: '', features: '', regions: [], custom: [], audience: '', seeds: '', notes: '', competitors: '', site: '', aivis: false }; }
+  function uniq(arr) { var seen = {}; return arr.filter(function (x) { if (seen[x]) return false; seen[x] = true; return true; }); }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function ymdCompact(d) { return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()); }
+  function shortDate(iso) { var d = new Date(iso); return isNaN(d) ? '' : pad2(d.getMonth() + 1) + '/' + pad2(d.getDate()); }
+  function fmtTime(iso) {
+    var d = new Date(iso);
+    if (!iso || isNaN(d)) return '';
+    return d.getFullYear() + '/' + pad2(d.getMonth() + 1) + '/' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+  function smoothOK() { return !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+  function regionsOf(inp) { return (inp.regions || []).concat(inp.custom || []); }
+  function fw(n) { return String(n).replace(/[0-9]/g, function (d) { return String.fromCharCode(d.charCodeAt(0) + 0xFEE0); }) + '．'; }
+  function plain(s) { return String(s == null ? '' : s).replace(/[*#`|]/g, '').replace(/\s+/g, ' ').trim(); }
+  function safeName(s) { return String(s || '報告').replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 40) || '報告'; }
+  function len(s) { return Array.from(String(s || '')).length; }
+  function S(v, max) { return (typeof v === 'string' ? v : (v === null || v === undefined ? '' : String(v))).replace(/\s+/g, ' ').trim().slice(0, max || 300); }
+  function A(v) { return Array.isArray(v) ? v : []; }
+  function pick(v, list, dflt) { var s = S(v, 20); return list.indexOf(s) >= 0 ? s : dflt; }
+  function strList(v, max, n) { return A(v).map(function (x) { return S(x, max); }).filter(Boolean).slice(0, n); }
+  function hostOf(u) { try { return new URL(/^https?:\/\//i.test(u) ? u : 'https://' + u).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
+
+  /* ---------- 狀態 ---------- */
+  var state = {
+    inputs: clone(EXAMPLE_INPUTS),
+    edited: false,
+    entries: [],
+    cur: null,
+    dstat: {},
+    tlds: ['com', 'com.tw'],
+    custom: [],
+    filter: { prio: 'all', region: 'all', q: '' },
+    tab: 'md',
+    scale: 'std',
+    metaIdx: 0,
+    serp: 'mobile',
+    compEditing: false,
+    code: ''
+  };
+  var EX = { id: 'example', at: '', provider: '', model: '', inputs: EXAMPLE_INPUTS, result: null, checks: {}, compInput: null, missing: [], ctx: null };
+  function entry() { for (var i = 0; i < state.entries.length; i++) if (state.entries[i].id === state.cur) return state.entries[i]; return null; }
+  function view() { return entry() || EX; }
+  function isExample() { return !entry(); }
+  function cur() { return view().result; }
+  function curInputs() { return view().inputs; }
+
+  function cleanInputs(raw) {
+    var inp = Object.assign(blankInputs(), raw && typeof raw === 'object' ? raw : {});
+    ['brand', 'offer', 'features', 'audience', 'seeds', 'notes', 'competitors', 'site'].forEach(function (k) { inp[k] = typeof inp[k] === 'string' ? inp[k] : ''; });
+    inp.regions = A(inp.regions).filter(function (r) { return REGION_PRESETS.indexOf(r) >= 0; });
+    inp.custom = A(inp.custom).map(function (x) { return S(x, 20); }).filter(Boolean).slice(0, 8);
+    inp.aivis = !!inp.aivis;
+    delete inp.deep;
+    return inp;
+  }
+  function cleanEntry(e) {
+    if (!e || typeof e !== 'object' || !e.result || !e.inputs) return null;
+    var inp = cleanInputs(e.inputs);
+    var r = normalize(e.result, inp);
+    if (!r.keywords.length || !r.summary) return null;
+    return {
+      id: S(e.id, 40) || ('r' + Date.now()), at: S(e.at, 40), provider: S(e.provider, 20), model: S(e.model, 60), inputs: inp, result: r,
+      checks: (e.checks && typeof e.checks === 'object') ? e.checks : {},
+      compInput: (e.compInput && typeof e.compInput === 'object') ? { url: S(e.compInput.url, 300), name: S(e.compInput.name, 160), page: String(e.compInput.page || '').slice(0, 3000) } : null,
+      missing: A(e.missing).filter(function (p) { return [2, 3, 4].indexOf(p) >= 0; }),
+      ctx: (e.ctx && typeof e.ctx === 'object') ? { summary: S(e.ctx.summary, 600), keywords: strList(e.ctx.keywords, 60, 14) } : null
+    };
+  }
+  function restore() {
+    var s = null;
+    try { var raw = localStorage.getItem(KEY); if (raw) s = JSON.parse(raw); } catch (e) { s = null; }
+    if (!s || typeof s !== 'object' || s.v !== 1) return;
+    if (s.inputs) state.inputs = cleanInputs(s.inputs);
+    state.edited = !!s.edited;
+    state.entries = A(s.entries).map(cleanEntry).filter(Boolean).slice(0, MAX_ENTRIES);
+    state.cur = state.entries.some(function (e) { return e.id === s.cur; }) ? s.cur : null;
+    if (s.dstat && typeof s.dstat === 'object') { state.dstat = s.dstat; pruneDstat(); }
+    if (Array.isArray(s.tlds)) { var t = s.tlds.filter(function (x) { return TLD_LIST.indexOf(x) >= 0; }); if (t.length) state.tlds = t; }
+    if (Array.isArray(s.custom)) state.custom = s.custom.map(cleanDomain).filter(function (x) { return x && x.ok; }).map(function (x) { return x.domain; }).slice(0, 20);
+    if (['std', 'lg', 'xl'].indexOf(s.scale) >= 0) state.scale = s.scale;
+    if (s.serp === 'desktop' || s.serp === 'mobile') state.serp = s.serp;
+    if (typeof s.code === 'string') state.code = s.code.slice(0, 60);
+  }
+  function save() {
+    var data = function () {
+      return JSON.stringify({ v: 1, inputs: state.inputs, edited: state.edited, entries: state.entries, cur: state.cur, dstat: state.dstat, tlds: state.tlds, custom: state.custom, scale: state.scale, serp: state.serp, code: state.code });
+    };
+    try { localStorage.setItem(KEY, data()); }
+    catch (e) {
+      try {
+        while (state.entries.length > 1) {
+          var drop = state.entries[state.entries.length - 1];
+          if (drop.id === state.cur) break;
+          state.entries.pop();
+          try { localStorage.setItem(KEY, data()); return; } catch (e2) { /* 再丟一筆 */ }
+        }
+      } catch (e3) { /* 不能存就算了，照常運作 */ }
+    }
+  }
+  var saveTimer = null;
+  function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(save, 400); }
+
+  /* ---------- 後端 ---------- */
+  var CFG = window.SOUBANTU_CONFIG || {};
+  var API = String(CFG.apiUrl || '').trim();
+  var backend = { state: API ? 'checking' : 'missing', info: null, usage: null };
+  var busy = false;
+
+  var ERR = {
+    need_code: '這個網站需要存取碼，請在上方輸入後再試。',
+    limit_ai: '今天的分析次數已經用完，明天再來。',
+    limit_domain: '今天的網域查詢次數已經用完，明天再來。',
+    not_configured: '網站後端還沒設定 AI 金鑰，請聯絡網站管理者。',
+    ai_key: 'AI 金鑰錯誤或沒有權限，請網站管理者檢查設定。',
+    ai_busy: 'AI 服務忙碌或額度用完，請稍後再試。',
+    ai_timeout: 'AI 回覆超過時間限制，請再試一次。',
+    ai_refused: 'AI 沒有處理這次的內容，請調整描述後再試。',
+    ai_format: 'AI 回覆的格式不完整，請再試一次。',
+    ai_error: 'AI 服務回傳錯誤，請稍後再試。',
+    bad_request: '送出的資料有問題，請檢查欄位。',
+    timeout: '等太久沒有回應，請再試一次。',
+    network: '連不到後端。請檢查網路，並確認 config.js 的網址正確、Apps Script 部署的存取權是「所有人」。',
+    bad_response: '後端回覆的格式不對，請確認 Apps Script 部署的存取權是「所有人」。',
+    server_error: '後端發生錯誤，請稍後再試。'
+  };
+  function errText(e) { var c = e && e.code; return ERR[c] || (e && e.message) || '發生錯誤，請再試一次。'; }
+
+  function api(action, payload, signal, timeoutMs) {
+    if (!API) return Promise.reject({ code: 'network', message: ERR.network });
+    var body = Object.assign({ action: action, code: state.code || '' }, payload || {});
+    var ctl = new AbortController(), timedOut = false;
+    var timer = setTimeout(function () { timedOut = true; ctl.abort(); }, timeoutMs || 170000);
+    var onAbort = function () { ctl.abort(); };
+    if (signal) { if (signal.aborted) ctl.abort(); else signal.addEventListener('abort', onAbort); }
+    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body), signal: ctl.signal, redirect: 'follow' })
+      .then(function (r) { return r.text(); })
+      .then(null, function () {
+        if (signal && signal.aborted) throw { code: 'cancelled' };
+        if (timedOut) throw { code: 'timeout' };
+        throw { code: 'network' };
+      })
+      .then(function (t) {
+        var j = null;
+        try { j = JSON.parse(t); } catch (e) { j = null; }
+        if (!j || typeof j !== 'object') throw { code: 'bad_response' };
+        if (j.usage) setUsage(j.usage);
+        if (!j.ok) {
+          if (j.error === 'need_code') showCodeRow(true);
+          throw { code: j.error || 'server_error', message: j.message || '' };
+        }
+        return j;
+      })
+      .finally(function () { clearTimeout(timer); if (signal) signal.removeEventListener('abort', onAbort); });
+  }
+  function loadInfo() {
+    if (!API) { renderBackend(); return; }
+    backend.state = 'checking';
+    renderBackend();
+    var c = new AbortController();
+    var tm = setTimeout(function () { c.abort(); }, 25000);
+    fetch(API + (API.indexOf('?') >= 0 ? '&' : '?') + 'action=info', { method: 'GET', redirect: 'follow', signal: c.signal })
+      .then(function (r) { return r.text(); })
+      .then(function (t) {
+        var j = JSON.parse(t);
+        if (!j || !j.ok) throw new Error('bad');
+        backend.info = j; backend.state = 'ok';
+        if (j.usage) setUsage(j.usage);
+        if (j.needCode) showCodeRow(true);
+      })
+      .catch(function () { backend.state = 'down'; })
+      .finally(function () { clearTimeout(tm); renderBackend(); });
+  }
+  function aiReady() { return backend.state === 'ok' && !!(backend.info && backend.info.provider); }
+  function domainReady() { return backend.state === 'ok'; }
+  function backendProblem() {
+    if (backend.state === 'missing') return '這個網站還沒接上後端：請在 config.js 填入 Apps Script 的網頁應用程式網址。範例結果和報告可以先看。';
+    if (backend.state === 'checking') return '正在連線後端…';
+    if (backend.state === 'down') return '連不到後端。請確認網路，以及 config.js 的網址、Apps Script 部署的存取權是「所有人」。';
+    if (!aiReady()) return '後端還沒設定 AI 金鑰，AI 分析暫時不能用；網域查詢可以用。';
+    return '';
+  }
+  function renderBackend() {
+    var p = backendProblem();
+    $('#availMsg').textContent = p;
+    $('#availBox').hidden = !p || backend.state === 'checking';
+    $('#retryInfo').hidden = backend.state !== 'down';
+    $('#runBtn').disabled = busy || !aiReady();
+    var cb = $('#compBtn'); if (cb) cb.disabled = busy || !aiReady();
+    var pn = $('#privacyNote'), prov = backend.info && backend.info.provider;
+    if (prov === 'gemini') { pn.textContent = '這個網站的 AI 分析用 Google Gemini API。若網站用的是免費額度，Google 會用輸入內容改進產品，也可能有人工審閱，請不要輸入機密或個人資料。'; pn.hidden = false; }
+    else if (prov === 'claude') { pn.textContent = '這個網站的 AI 分析用 Anthropic Claude API，輸入內容會送到 Anthropic 處理。'; pn.hidden = false; }
+    else pn.hidden = true;
+    renderUsage();
+    refreshSection('domains');
+  }
+  function setUsage(u) { backend.usage = u; renderUsage(); }
+  function renderUsage() {
+    var el = $('#backendLine'), u = backend.usage, i = backend.info;
+    if (backend.state === 'missing') { el.textContent = '後端：還沒設定。'; return; }
+    if (backend.state === 'checking') { el.textContent = '後端：連線中…'; return; }
+    if (backend.state === 'down') { el.textContent = '後端：連不到。'; return; }
+    var prov = (u && u.provider) || (i && i.provider), model = (u && u.model) || (i && i.model);
+    var parts = ['後端：已連線'];
+    if (prov) parts.push('AI：' + (PROVIDER_LABEL[prov] || prov) + (model ? '（' + model + '）' : ''));
+    if (u) parts.push('今天還能做約 ' + Math.floor(u.ai_left / 4) + ' 次完整分析、' + u.domain_left + ' 次網域查詢');
+    el.textContent = parts.join('・');
+  }
+  function showCodeRow(show) {
+    var row = $('#codeRow');
+    if (show) { row.hidden = false; }
+  }
+
+  /* ---------- 表單 ---------- */
+  var F = {};
+  function grabForm() {
+    F.brand = $('#f-brand'); F.offer = $('#f-offer'); F.feat = $('#f-feat'); F.aud = $('#f-aud'); F.seeds = $('#f-seeds');
+    F.notes = $('#f-notes'); F.comp = $('#f-comp'); F.site = $('#f-site'); F.aivis = $('#f-aivis'); F.code = $('#f-code');
+  }
+  function renderForm() {
+    var i = state.inputs;
+    F.brand.value = i.brand; F.offer.value = i.offer; F.feat.value = i.features; F.aud.value = i.audience; F.seeds.value = i.seeds;
+    F.notes.value = i.notes; F.comp.value = i.competitors; F.site.value = i.site; F.aivis.checked = !!i.aivis;
+    F.code.value = state.code;
+    renderRegionChips();
+    $('#exBadge').hidden = state.edited;
+  }
+  function readForm() {
+    var i = state.inputs;
+    i.brand = F.brand.value.trim(); i.offer = F.offer.value.trim(); i.features = F.feat.value.trim(); i.audience = F.aud.value.trim();
+    i.seeds = F.seeds.value.trim(); i.notes = F.notes.value.trim(); i.competitors = F.comp.value.trim(); i.site = F.site.value.trim();
+    i.aivis = F.aivis.checked;
+  }
+  function renderRegionChips() {
+    var box = $('#regionChips');
+    box.replaceChildren();
+    REGION_PRESETS.forEach(function (r) {
+      box.append(h('button', { type: 'button', 'class': 'chip', 'aria-pressed': String(state.inputs.regions.indexOf(r) >= 0), onclick: function () { toggleRegion(r); } }, r));
+    });
+    var cbox = $('#customRegions');
+    cbox.replaceChildren();
+    state.inputs.custom.forEach(function (r) {
+      cbox.append(h('button', { type: 'button', 'class': 'chip custom', 'aria-label': '移除地區 ' + r, onclick: function () { removeCustomRegion(r); } }, r, h('span', { 'class': 'x', 'aria-hidden': 'true' }, '×')));
+    });
+    cbox.hidden = !state.inputs.custom.length;
+  }
+  function toggleRegion(r) {
+    var arr = state.inputs.regions, at = arr.indexOf(r);
+    if (at >= 0) arr.splice(at, 1);
+    else { if (regionsOf(state.inputs).length >= 8) { showErr('region', '最多 8 個地區。'); return; } arr.push(r); }
+    markEdited(); renderRegionChips(); clearErr('region');
+    var b = $all('#regionChips button').filter(function (x) { return x.textContent === r; })[0];
+    if (b) b.focus();
+  }
+  function addCustomRegion() {
+    var inp = $('#f-region'), v = inp.value.replace(/\s+/g, ' ').trim();
+    if (!v) return;
+    if (regionsOf(state.inputs).length >= 8) { showErr('region', '最多 8 個地區。'); return; }
+    if (regionsOf(state.inputs).indexOf(v) < 0) state.inputs.custom.push(v);
+    inp.value = '';
+    markEdited(); renderRegionChips(); clearErr('region');
+    inp.focus();
+  }
+  function removeCustomRegion(r) {
+    state.inputs.custom = state.inputs.custom.filter(function (x) { return x !== r; });
+    markEdited(); renderRegionChips();
+    $('#f-region').focus();
+  }
+  var formTimer = null;
+  function markEdited() {
+    if (!state.edited) { state.edited = true; $('#exBadge').hidden = true; }
+    clearTimeout(formTimer);
+    formTimer = setTimeout(function () { readForm(); save(); }, 400);
+  }
+  function showErr(which, text) {
+    var e = $('#e-' + which); e.textContent = text; e.hidden = false;
+    var f = which === 'brand' ? F.brand : which === 'offer' ? F.offer : null;
+    if (f) f.setAttribute('aria-invalid', 'true');
+  }
+  function clearErr(which) {
+    var e = $('#e-' + which); if (e) e.hidden = true;
+    var f = which === 'brand' ? F.brand : which === 'offer' ? F.offer : null;
+    if (f) f.removeAttribute('aria-invalid');
+  }
+  function validateForm() {
+    var ok = true, first = null;
+    ['brand', 'offer', 'region'].forEach(clearErr);
+    if (!state.inputs.brand) { showErr('brand', '請填品牌名稱。'); ok = false; first = first || F.brand; }
+    if (!state.inputs.offer) { showErr('offer', '請寫產品或服務，越具體越好。'); ok = false; first = first || F.offer; }
+    if (!regionsOf(state.inputs).length) { showErr('region', '請至少選一個地區，或自訂一個。'); ok = false; first = first || $('#regionChips button'); }
+    if (first) first.focus();
+    return ok;
+  }
+  function apiInputs(inp) {
+    return { brand: inp.brand, offer: inp.offer, features: inp.features, regions: regionsOf(inp), audience: inp.audience, seeds: inp.seeds, notes: inp.notes, competitors: inp.competitors, site: inp.site, aivis: !!inp.aivis };
+  }
+
+  /* ---------- 正規化 AI 回覆 ---------- */
+  function cleanSlug(v) {
+    var s = String(v || '').trim().toLowerCase().replace(/^https?:\/\/[^/]+/, '');
+    if (!s || s === '/') return '/';
+    s = '/' + s.replace(/^\/+/, '');
+    s = s.replace(/[^a-z0-9\/-]+/g, '-').replace(/-+/g, '-').replace(/\/+/g, '/').replace(/(.)\/$/, '$1');
+    return s.slice(0, 80) || '/';
+  }
+  function normMeta(arr) {
+    return A(arr).map(function (m) {
+      m = m || {};
+      var t = S(m.title, 120);
+      if (!t) return null;
+      return { page: S(m.page, 20) || '頁面', title: t, description: S(m.description, 240), slug: cleanSlug(m.slug), h1: S(m.h1, 80) };
+    }).filter(Boolean).slice(0, 4);
+  }
+  function normalize(d, inp) {
+    d = d || {};
+    var prioMap = { high: '高', medium: '中', mid: '中', low: '低', '高': '高', '中': '中', '低': '低' };
+    var order = { '高': 0, '中': 1, '低': 2 };
+    var out = {};
+    out.summary = S(d.summary, 600);
+    out.positioning = S(d.positioning, 200);
+    out.keywords = A(d.keywords).map(function (k, i) {
+      k = k || {};
+      var kw = S(k.keyword, 60);
+      if (!kw) return null;
+      var o = { keyword: kw, type: pick(k.type, TYPES, '長尾'), intent: pick(k.intent, INTENTS, '資訊'), priority: prioMap[S(k.priority, 10).toLowerCase()] || '中', region: S(k.region, 30) || '全區', reason: S(k.reason, 180), page: S(k.page, 60), _i: i };
+      if (k.from === 'comp') o.from = 'comp';
+      return o;
+    }).filter(Boolean).slice(0, 48).sort(function (a, b) { return (order[a.priority] - order[b.priority]) || (a._i - b._i); })
+      .map(function (k) { delete k._i; return k; });
+    out.regions = A(d.regions).map(function (r) {
+      r = r || {};
+      var name = S(r.region, 30);
+      if (!name) return null;
+      return { region: name, angle: S(r.angle, 220), keywords: strList(r.keywords, 40, 8), actions: strList(r.actions, 160, 6) };
+    }).filter(Boolean).slice(0, 12);
+    out.content = A(d.content).map(function (c) {
+      c = c || {};
+      var t = S(c.title, 80);
+      if (!t) return null;
+      return { title: t, format: pick(c.format, FORMATS, '部落格'), stage: pick(c.stage, STAGES_C, '需求評估'), keyword: S(c.keyword, 60), outline: strList(c.outline, 120, 6) };
+    }).filter(Boolean).slice(0, 10);
+    out.meta = normMeta(d.meta);
+    out.meta_ai = Array.isArray(d.meta_ai) ? normMeta(d.meta_ai) : clone(out.meta);
+    out.local = A(d.local).map(function (x) { x = x || {}; return { title: S(x.title, 40), action: S(x.action, 220) }; }).filter(function (x) { return x.title || x.action; }).slice(0, 8);
+    out.onpage = strList(d.onpage, 200, 10);
+    if (d.season && typeof d.season === 'object') {
+      var se = { peak: S(d.season.peak, 200), low: S(d.season.low, 200), why: S(d.season.why, 240), related: strList(d.season.related, 40, 6) };
+      if (se.peak || se.low || se.why || se.related.length) out.season = se;
+    }
+    var seen = {};
+    out.domains = A(d.domains).map(function (x) {
+      var name = cleanLabel(typeof x === 'string' ? x : (x && x.name));
+      if (!name || seen[name]) return null;
+      seen[name] = true;
+      return { name: name, why: S(x && x.why, 120) };
+    }).filter(Boolean).slice(0, 8);
+    out.data_needed = strList(d.data_needed, 240, 8);
+    out.assumptions = strList(d.assumptions, 200, 6);
+    if (d.ai_visibility && typeof d.ai_visibility === 'object') {
+      var a = d.ai_visibility;
+      var v = { questions: strList(a.questions, 160, 8), actions: strList(a.actions, 200, 8), facts: strList(a.facts, 160, 8) };
+      if (v.questions.length || v.actions.length || v.facts.length) out.ai_visibility = v;
+    }
+    if (d.competitor && typeof d.competitor === 'object') {
+      var c = normComp(d.competitor);
+      if (c.gaps.length && c.positioning) out.competitor = c;
+    }
+    return out;
+  }
+  function normComp(c) {
+    c = c || {};
+    var page = (c.page && typeof c.page === 'object') ? { title: S(c.page.title, 160), description: S(c.page.description, 300), h1: S(c.page.h1, 120) } : null;
+    return {
+      name: S(c.name, 160),
+      url: S(c.url, 300),
+      basis: ['fetched', 'provided'].indexOf(c.basis) >= 0 ? c.basis : 'general',
+      page: page,
+      fetchError: S(c.fetchError, 160),
+      positioning: S(c.positioning, 320),
+      gaps: A(c.gaps).map(function (g) {
+        g = g || {};
+        var dim = S(g.dimension, 60);
+        if (!dim) return null;
+        return { dimension: dim, level: pick(g.level, LEVELS, '中度'), detail: S(g.detail, 220), counter: S(g.counter, 220), keywords: strList(g.keywords, 40, 4), page: S(g.page, 80) };
+      }).filter(Boolean).slice(0, 5),
+      quick_wins: A(c.quick_wins).map(function (q) { q = q || {}; var act = S(q.action, 140); return act ? { when: S(q.when, 20), action: act, why: S(q.why, 180) } : null; }).filter(Boolean).slice(0, 5),
+      link_sources: A(c.link_sources).map(function (l) { l = l || {}; var ty = S(l.type, 60); return ty ? { type: ty, approach: S(l.approach, 220), anchor: S(l.anchor, 40), pitch: S(l.pitch, 120) } : null; }).filter(Boolean).slice(0, 6),
+      verify: strList(c.verify, 220, 5),
+      at: S(c.at, 40)
+    };
+  }
+  function cleanLabel(v) {
+    var s = String(v || '').toLowerCase().trim().replace(/^https?:\/\//, '').replace(/^www\./, '');
+    s = s.split(/[./]/)[0].replace(/[^a-z0-9-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    return s && s.length <= 63 ? s : '';
+  }
+  function cleanDomain(v) {
+    var s = String(v || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/[/?#].*$/, '');
+    if (!s) return { ok: false, msg: '請輸入網域，例：mybrand.com.tw' };
+    if (/[^\x00-\x7f]/.test(s)) return { ok: false, msg: '中文網域請直接到 TWNIC 官網查詢；這裡只收英文網域。' };
+    var re = /^(?=.{4,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
+    if (!re.test(s)) return { ok: false, msg: '格式不對，例：mybrand.com.tw、my-brand.com' };
+    return { ok: true, domain: s };
+  }
+
+  /* ---------- 分析（分 4 段） ---------- */
+  var ctl = null, timer = null, t0 = 0;
+  function setRunning(on, title) {
+    busy = on;
+    $('#runBtn').disabled = on || !aiReady();
+    var cb = $('#compBtn'); if (cb) cb.disabled = on || !aiReady();
+    var fb = $('#fillBtn'); if (fb) fb.disabled = on;
+    $('#stopBtn').hidden = !on;
+    $('#runPanel').hidden = !on;
+    clearInterval(timer);
+    if (on) {
+      t0 = Date.now();
+      $('#runTitle').textContent = title || '分析中…';
+      $('#runTime').textContent = '0 秒';
+      timer = setInterval(function () { $('#runTime').textContent = Math.round((Date.now() - t0) / 1000) + ' 秒'; }, 1000);
+      hideMsg();
+    }
+  }
+  var partState = {};
+  function setPart(p, s) { partState[p] = s; renderParts(); }
+  function renderParts() {
+    var box = $('#stages');
+    box.replaceChildren();
+    PARTS.forEach(function (p) {
+      var s = partState[p[0]] || '';
+      box.append(h('span', { 'class': 'stage' + (s ? ' ' + s : '') }, p[1] + (s === 'done' ? ' ✓' : s === 'fail' ? ' ✗' : '')));
+    });
+  }
+  function partLabel(p) { var x = PARTS.filter(function (q) { return q[0] === p; })[0]; return x ? x[1] : String(p); }
+
+  function runParts(inputs, ctx, parts, signal, raw, failed, errs) {
+    return Promise.all(parts.map(function (p) {
+      setPart(p, 'now');
+      return api('analyze', { part: p, inputs: inputs, context: ctx }, signal)
+        .then(function (j) { Object.assign(raw, (j.data && j.data.data) || {}); setPart(p, 'done'); },
+          function (e) { if (e && e.code === 'cancelled') throw e; failed.push(p); errs.push(e); setPart(p, 'fail'); });
+    }));
+  }
+
+  function runAnalysis() {
+    if (busy) return;
+    readForm();
+    if (!validateForm()) return;
+    save();
+    if (!aiReady()) { showMsg(backendProblem() || ERR.network, 'bad'); return; }
+    var inp = clone(state.inputs), payload = apiInputs(inp);
+    var raw = {}, failed = [], errs = [], ctx = null;
+    partState = {};
+    ctl = new AbortController();
+    setRunning(true, '分析中…');
+    renderParts();
+    setPart(1, 'now');
+    api('analyze', { part: 1, inputs: payload }, ctl.signal)
+      .then(function (j) {
+        Object.assign(raw, (j.data && j.data.data) || {});
+        if (!raw.summary || !Array.isArray(raw.keywords) || !raw.keywords.length) throw { code: 'ai_format' };
+        setPart(1, 'done');
+        ctx = { summary: S(raw.summary, 600), keywords: A(raw.keywords).map(function (k) { return k && S(k.keyword, 60); }).filter(Boolean).slice(0, 12) };
+        return runParts(payload, ctx, [2, 3, 4], ctl.signal, raw, failed, errs);
+      })
+      .then(function () {
+        var norm = normalize(raw, inp);
+        var u = backend.usage || {}, i = backend.info || {};
+        var E = { id: 'r' + Date.now(), at: new Date().toISOString(), provider: u.provider || i.provider || '', model: u.model || i.model || '', inputs: inp, result: norm, checks: {}, compInput: null, missing: failed.sort(), ctx: ctx };
+        state.entries.unshift(E);
+        state.entries = state.entries.slice(0, MAX_ENTRIES);
+        state.cur = E.id;
+        state.filter = { prio: 'all', region: 'all', q: '' };
+        state.metaIdx = 0; state.compEditing = false;
+        save();
+        renderResults();
+        if (failed.length) showMsg('有 ' + failed.length + ' 段沒有完成（' + failed.map(partLabel).join('、') + '）：' + errText(errs[0]) + ' 成果上方可以按「補齊沒完成的段落」。', 'warn');
+        else showMsg('分析完成，成果在下面。網域正在向註冊資料庫查詢。', 'good');
+        $('#results').scrollIntoView({ behavior: smoothOK() ? 'smooth' : 'auto', block: 'start' });
+        checkDomains(allDomains(), false);
+      })
+      .catch(function (e) {
+        if (e && e.code === 'cancelled') { showMsg('已停止分析。', 'warn'); return; }
+        setPart(1, partState[1] === 'done' ? 'done' : 'fail');
+        showMsg(errText(e), 'bad');
+        if (e && e.code === 'need_code') { var c = $('#f-code'); if (c) c.focus(); }
+      })
+      .then(function () { ctl = null; setRunning(false); });
+  }
+
+  function retryMissing() {
+    var E = entry();
+    if (!E || busy || !E.missing.length) return;
+    if (!aiReady()) { toast(backendProblem()); return; }
+    if (!E.ctx) E.ctx = { summary: E.result.summary, keywords: E.result.keywords.slice(0, 12).map(function (k) { return k.keyword; }) };
+    var raw = {}, failed = [], errs = [], todo = E.missing.slice();
+    partState = { 1: 'done' };
+    [2, 3, 4].forEach(function (p) { if (todo.indexOf(p) < 0) partState[p] = 'done'; });
+    ctl = new AbortController();
+    setRunning(true, '補齊沒完成的段落…');
+    renderParts();
+    var fb = $('#fillBtn'); if (fb) fb.textContent = '補齊中…';
+    runParts(apiInputs(E.inputs), E.ctx, todo, ctl.signal, raw, failed, errs)
+      .then(function () {
+        var merged = Object.assign({}, E.result, raw);
+        if (raw.meta) delete merged.meta_ai;
+        E.result = normalize(merged, E.inputs);
+        E.missing = failed.sort();
+        save(); renderResults();
+        if (failed.length) showMsg('還有 ' + failed.length + ' 段沒有完成：' + errText(errs[0]), 'warn');
+        else { showMsg('已經補齊。', 'good'); toast('已經補齊所有段落'); }
+        if (raw.domains) checkDomains(allDomains(), false);
+      })
+      .catch(function (e) {
+        if (e && e.code === 'cancelled') { showMsg('已停止。', 'warn'); renderResults(); return; }
+        showMsg(errText(e), 'bad'); renderResults();
+      })
+      .then(function () { ctl = null; setRunning(false); });
+  }
+
+  function showMsg(text, tone) { var m = $('#runMsg'); m.textContent = text; m.className = 'msg ' + (tone || 'warn'); m.hidden = false; }
+  function hideMsg() { $('#runMsg').hidden = true; }
+
+  /* ---------- 競品 ---------- */
+  var compCtl = null, compTimer = null, compRunning = false;
+  function setCompRunning(on) {
+    busy = on; compRunning = on;
+    $('#runBtn').disabled = on || !aiReady();
+    var b = $('#compBtn'), st = $('#compStop'), run = $('#compRun');
+    if (b) b.disabled = on || !aiReady();
+    if (st) st.hidden = !on;
+    if (run) run.hidden = !on;
+    clearInterval(compTimer);
+    if (on) {
+      var t = Date.now();
+      compTimer = setInterval(function () { var el = $('#compRunTime'); if (el) el.textContent = Math.round((Date.now() - t) / 1000) + ' 秒'; }, 1000);
+    }
+  }
+  function compMsg(text, tone) {
+    var m = $('#compMsg');
+    if (!m) { toast(text); return; }
+    m.textContent = text; m.className = 'msg ' + (tone || 'warn'); m.hidden = false;
+  }
+  function runCompetitor() {
+    var E = entry();
+    if (!E || busy) return;
+    var url = ($('#c-url').value || '').trim(), name = ($('#c-name').value || '').trim(), page = ($('#c-page').value || '').trim().slice(0, 3000);
+    if (!url && !name && !page) { compMsg('請填競品網址或名稱，或貼上競品內容。', 'bad'); $('#c-url').focus(); return; }
+    if (!aiReady()) { compMsg(backendProblem(), 'bad'); return; }
+    E.compInput = { url: url, name: name, page: page };
+    save();
+    compCtl = new AbortController();
+    var m = $('#compMsg'); if (m) m.hidden = true;
+    setCompRunning(true);
+    api('competitor', { inputs: apiInputs(E.inputs), url: url, name: name, page: page, keywords: E.result.keywords.slice(0, 10).map(function (k) { return k.keyword; }) }, compCtl.signal)
+      .then(function (j) {
+        var d = j.data || {};
+        var c = normComp(Object.assign({}, d.analysis || {}, { name: name || hostOf(d.url || url) || '競爭對手', url: d.url || url, basis: d.basis, page: d.page, fetchError: d.fetchError, at: new Date().toISOString() }));
+        if (!c.gaps.length || !c.positioning) { compMsg(ERR.ai_format, 'bad'); return; }
+        E.result.competitor = c;
+        state.compEditing = false;
+        save();
+        refreshSection('competitor');
+        refreshReport();
+        toast('競品分析完成');
+      })
+      .catch(function (e) {
+        if (e && e.code === 'cancelled') { compMsg('已停止競品分析。', 'warn'); return; }
+        compMsg(errText(e), 'bad');
+      })
+      .then(function () { compCtl = null; setCompRunning(false); });
+  }
+
+  /* ---------- 網域（RDAP） ---------- */
+  var checking = {};
+  function fresh(d) {
+    var s = state.dstat[d];
+    if (!s || s.s === 'unknown') return false;
+    var t = Date.parse(s.at);
+    return !isNaN(t) && Date.now() - t < 24 * 3600 * 1000;
+  }
+  // 查過的網域只留最近 30 天、最多 300 筆，免得瀏覽器存太多
+  function pruneDstat() {
+    var keep = Object.keys(state.dstat).map(function (d) {
+      var s = state.dstat[d], t = s && typeof s === 'object' ? Date.parse(s.at) : NaN;
+      return [d, t];
+    }).filter(function (x) { return !isNaN(x[1]) && Date.now() - x[1] < 30 * 24 * 3600 * 1000; })
+      .sort(function (a, b) { return b[1] - a[1]; }).slice(0, 300);
+    var out = {};
+    keep.forEach(function (x) { out[x[0]] = state.dstat[x[0]]; });
+    state.dstat = out;
+  }
+  function checkDomains(list, force) {
+    if (!domainReady()) { if (force) toast(backendProblem()); return Promise.resolve(); }
+    var todo = uniq(list).filter(function (d) { return !checking[d] && (force || !fresh(d)); });
+    if (!todo.length) return Promise.resolve();
+    todo.forEach(function (d) { checking[d] = true; });
+    refreshSection('domains');
+    var chunks = [];
+    for (var i = 0; i < todo.length; i += 12) chunks.push(todo.slice(i, i + 12));
+    var stop = null;
+    var p = Promise.resolve();
+    chunks.forEach(function (c) {
+      p = p.then(function () {
+        if (stop) { c.forEach(function (d) { delete checking[d]; }); return; }
+        return api('domains', { domains: c }, null, 90000)
+          .then(function (j) {
+            A(j.data && j.data.results).forEach(function (r) {
+              if (r && r.domain) state.dstat[r.domain] = { s: r.s, at: new Date().toISOString(), created: S(r.created, 20), expires: S(r.expires, 20), registrar: S(r.registrar, 80), note: S(r.note, 120) };
+            });
+          }, function (e) {
+            c.forEach(function (d) { if (force || !state.dstat[d]) state.dstat[d] = { s: 'unknown', at: new Date().toISOString(), note: errText(e) }; });
+            if (e && ['limit_domain', 'need_code', 'network', 'bad_response'].indexOf(e.code) >= 0) { stop = e; toast(errText(e)); }
+          })
+          .then(function () { c.forEach(function (d) { delete checking[d]; }); save(); refreshSection('domains'); refreshReport(); });
+      });
+    });
+    return p;
+  }
+
+  /* ---------- 成果 ---------- */
+  function sec(id, nav, title, sub) {
+    var s = h('section', { id: id, 'class': 'sec', dataset: { nav: nav }, 'aria-labelledby': id + '-h' }, h('h2', { id: id + '-h' }, title));
+    if (sub) s.append(h('p', { 'class': 'sub' }, sub));
+    return s;
+  }
+  function aiLabel(E) {
+    if (!E || !E.provider) return '';
+    return (PROVIDER_LABEL[E.provider] || E.provider) + (E.model ? '（' + E.model + '）' : '');
+  }
+  function builders() {
+    var R = cur(), list = [['overview', secOverview], ['keywords', secKeywords], ['regions', secRegions], ['meta', secMeta], ['content', secContent], ['optimize', secOptimize], ['trends', secTrends], ['competitor', secCompetitor]];
+    if (R.ai_visibility) list.push(['aivis', secAivis]);
+    list.push(['domains', secDomains], ['verify', secVerify], ['report', secReport]);
+    return list;
+  }
+  function renderResults() {
+    var E = entry(), inp = curInputs(), ex = isExample();
+    var lab = $('#resLabel');
+    lab.textContent = ex ? '範例結果：虛構品牌，示範輸出的樣子' : '分析結果・' + fmtTime(E.at) + (aiLabel(E) ? '・' + aiLabel(E) : '');
+    lab.className = 'eyebrow' + (ex ? ' ex' : '');
+    $('#resTitle').textContent = inp.brand + ' 的搜尋版圖';
+    renderTools();
+    var body = $('#resBody');
+    body.replaceChildren();
+    var secs = builders().map(function (b) { return b[1](); });
+    secs.forEach(function (s) { body.append(s); });
+    refreshKeywords(); refreshMeta(); refreshReport();
+    var nav = $('#secnav');
+    nav.replaceChildren();
+    secs.forEach(function (s) {
+      nav.append(h('button', {
+        type: 'button', 'class': 'navchip',
+        onclick: function () {
+          var t = document.getElementById(s.id);
+          if (!t) return;
+          t.scrollIntoView({ behavior: smoothOK() ? 'smooth' : 'auto', block: 'start' });
+          var hh = t.querySelector('h2'); if (hh) { hh.setAttribute('tabindex', '-1'); hh.focus({ preventScroll: true }); }
+        }
+      }, s.dataset.nav));
+    });
+  }
+  function refreshSection(id) {
+    var old = document.getElementById(id);
+    if (!old) return;
+    var b = builders().filter(function (x) { return x[0] === id; })[0];
+    if (!b) return;
+    var a = document.activeElement, key = a && a.dataset ? a.dataset.key : null;
+    var fresh2 = b[1]();
+    old.replaceWith(fresh2);
+    if (id === 'keywords') refreshKeywords();
+    if (id === 'meta') refreshMeta();
+    if (id === 'report') refreshReport();
+    if (key) {
+      var t = $all('[data-key]', fresh2).filter(function (x) { return x.dataset.key === key; })[0];
+      if (t) t.focus({ preventScroll: true });
+    }
+  }
+
+  var clearArmed = null;
+  function renderTools() {
+    var box = $('#resTools');
+    box.replaceChildren();
+    if (state.entries.length) {
+      var sel = h('select', { id: 'history', 'class': 'select', 'aria-label': '切換分析紀錄' });
+      state.entries.forEach(function (e) {
+        var o = h('option', { value: e.id }, fmtTime(e.at) + '・' + e.inputs.brand);
+        if (e.id === state.cur) o.selected = true;
+        sel.append(o);
+      });
+      var ox = h('option', { value: 'example' }, '範例：暖居水電工程（虛構）');
+      if (!state.cur) ox.selected = true;
+      sel.append(ox);
+      sel.addEventListener('change', function () {
+        state.cur = sel.value === 'example' ? null : sel.value;
+        state.filter = { prio: 'all', region: 'all', q: '' }; state.metaIdx = 0; state.compEditing = false;
+        save(); renderResults();
+        var again = $('#history'); if (again) again.focus();
+      });
+      box.append(h('span', { 'class': 'mini' }, '分析紀錄'), sel);
+    }
+    var E = entry();
+    if (E && E.missing.length) {
+      box.append(h('button', { type: 'button', id: 'fillBtn', 'class': 'btn small primary', disabled: busy, onclick: retryMissing }, '補齊沒完成的段落（' + E.missing.map(partLabel).join('、') + '）'));
+    }
+    if (E) {
+      var b = h('button', { type: 'button', 'class': 'btn small', id: 'clearResult' }, '刪除這份結果');
+      b.addEventListener('click', function () {
+        if (clearArmed) {
+          clearTimeout(clearArmed); clearArmed = null;
+          state.entries = state.entries.filter(function (e) { return e.id !== state.cur; });
+          state.cur = state.entries.length ? state.entries[0].id : null;
+          state.metaIdx = 0; state.compEditing = false;
+          save(); renderResults(); hideMsg();
+          toast(state.cur ? '已刪除，改顯示上一份結果' : '已刪除，回到範例結果');
+          return;
+        }
+        b.textContent = '再按一次確認刪除';
+        clearArmed = setTimeout(function () { clearArmed = null; if (b.isConnected) b.textContent = '刪除這份結果'; }, 4000);
+      });
+      box.append(b);
+    }
+  }
+
+  function missingNote(part) {
+    var E = entry();
+    return (E && E.missing.indexOf(part) >= 0) ? h('p', { 'class': 'msg warn' }, '這一段沒有完成，請按成果上方的「補齊沒完成的段落」。') : null;
+  }
+
+  function secOverview() {
+    var R = cur(), inp = curInputs();
+    var s = sec('overview', '總覽', '策略總覽');
+    s.append(h('p', { 'class': 'lead' }, R.summary));
+    if (R.positioning) s.append(h('p', { 'class': 'position' }, h('span', null, R.positioning)));
+    var c = { '高': 0, '中': 0, '低': 0 };
+    R.keywords.forEach(function (k) { c[k.priority]++; });
+    function fact(k, v) { return h('div', { 'class': 'fact' }, h('dt', null, k), h('dd', null, v)); }
+    s.append(h('dl', { 'class': 'facts' },
+      fact('關鍵字', [R.keywords.length + ' 個', h('span', { 'class': 'fact-sub' }, '高 ' + c['高'] + '・中 ' + c['中'] + '・低 ' + c['低'])]),
+      fact('目標地區', regionsOf(inp).join('、')),
+      fact('內容規劃', R.content.length + ' 篇'),
+      fact('網域候選', R.domains.length + ' 個名稱')));
+    return s;
+  }
+
+  function secKeywords() {
+    var R = cur();
+    var s = sec('keywords', '關鍵字', '關鍵字策略', '優先度是依搜尋意圖、離成交多近和地區相關性判斷，不是搜尋量。');
+    var regions = ['all'].concat(uniq(R.keywords.map(function (k) { return k.region; })));
+    if (regions.indexOf(state.filter.region) < 0) state.filter.region = 'all';
+    var seg = h('div', { 'class': 'seg', role: 'group', 'aria-label': '依優先度篩選' });
+    ['all'].concat(PRIOS).forEach(function (p) {
+      seg.append(h('button', { type: 'button', dataset: { prio: p }, 'aria-pressed': String(state.filter.prio === p), onclick: function () { state.filter.prio = p; refreshKeywords(); } }, p === 'all' ? '全部' : p));
+    });
+    var sel = h('select', { id: 'kwRegion', 'class': 'select', 'aria-label': '依地區篩選' });
+    regions.forEach(function (r) {
+      var o = h('option', { value: r }, r === 'all' ? '所有地區' : r);
+      if (r === state.filter.region) o.selected = true;
+      sel.append(o);
+    });
+    sel.addEventListener('change', function () { state.filter.region = sel.value; refreshKeywords(); });
+    var q = h('input', { type: 'search', id: 'kwSearch', placeholder: '搜尋關鍵字、頁面或理由', 'aria-label': '搜尋關鍵字', value: state.filter.q });
+    q.addEventListener('input', function () { state.filter.q = q.value.trim(); refreshKeywords(); });
+    s.append(h('div', { 'class': 'filters' }, seg, sel, q));
+    s.append(h('div', { 'class': 'filters' },
+      h('span', { id: 'kwCount', 'class': 'count', 'aria-live': 'polite' }),
+      h('button', { type: 'button', id: 'csvBtn', 'class': 'btn small', onclick: saveCsv }, '下載 CSV')));
+    s.append(h('ol', { id: 'kwList', 'class': 'kw-list' }));
+    return s;
+  }
+  function refreshKeywords() {
+    var R = cur(), list = $('#kwList');
+    if (!list) return;
+    $all('#keywords .seg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.prio === state.filter.prio)); });
+    var q = state.filter.q.toLowerCase();
+    var shown = R.keywords.filter(function (k) {
+      if (state.filter.prio !== 'all' && k.priority !== state.filter.prio) return false;
+      if (state.filter.region !== 'all' && k.region !== state.filter.region) return false;
+      if (q && (k.keyword + ' ' + k.page + ' ' + k.reason).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    list.replaceChildren();
+    shown.forEach(function (k) {
+      list.append(h('li', { 'class': 'kw' },
+        h('span', { 'class': 'prio ' + PRIO_CLASS[k.priority], 'aria-label': '優先度' + k.priority }, k.priority),
+        h('div', { 'class': 'kw-main' },
+          h('p', { 'class': 'kw-term' }, k.keyword),
+          h('p', { 'class': 'kw-tags' }, h('span', { 'class': 'tag' }, k.type), h('span', { 'class': 'tag' }, '意圖：' + k.intent), h('span', { 'class': 'tag' }, k.region), k.from === 'comp' ? h('span', { 'class': 'tag comp' }, '競品缺口') : null),
+          k.reason ? h('p', null, k.reason) : null,
+          k.page ? h('p', { 'class': 'kw-page' }, '對應頁面：' + k.page) : null)));
+    });
+    if (!shown.length) list.append(h('li', { 'class': 'empty' }, '這個條件下沒有關鍵字。'));
+    $('#kwCount').textContent = '顯示 ' + shown.length + '／' + R.keywords.length;
+  }
+
+  function secRegions() {
+    var R = cur();
+    var s = sec('regions', '地區', '地區策略（GEO）', '每個目標地區的切入角度、在地搜尋字和要做的事。');
+    var grid = h('div', { 'class': 'grid2' });
+    R.regions.forEach(function (r) {
+      grid.append(h('article', { 'class': 'card' },
+        h('h3', null, r.region),
+        r.angle ? h('p', null, r.angle) : null,
+        r.keywords.length ? h('div', { 'class': 'kchips' }, r.keywords.map(function (k) { return h('span', { 'class': 'kchip' }, k); })) : null,
+        r.actions.length ? h('div', null, h('p', { 'class': 'mini' }, '在地做法'), h('ul', { 'class': 'plain' }, r.actions.map(function (a) { return h('li', null, a); }))) : null));
+    });
+    appendKid(s, missingNote(2));
+    if (!R.regions.length && !missingNote(2)) grid.append(h('p', { 'class': 'empty' }, '這次沒有地區策略。'));
+    s.append(grid);
+    return s;
+  }
+
+  /* Meta 與搜尋結果預覽 */
+  function siteHost() {
+    var inp = curInputs(), R = cur();
+    if (inp.site && hostOf(inp.site)) return hostOf(inp.site);
+    if (R.domains.length) return R.domains[0].name + '.' + state.tlds[0];
+    return 'example.com';
+  }
+  function secMeta() {
+    var R = cur();
+    var s = sec('meta', '標題描述', '標題與描述（Meta）', '可以直接改字，下面的搜尋結果預覽和報告會跟著更新。');
+    appendKid(s, missingNote(3));
+    if (!R.meta.length) { if (!missingNote(3)) s.append(h('p', { 'class': 'empty' }, '這次沒有標題建議。')); return s; }
+    if (state.metaIdx >= R.meta.length) state.metaIdx = 0;
+    var tabs = h('div', { 'class': 'chips', role: 'group', 'aria-label': '選擇頁面' });
+    R.meta.forEach(function (m, i) {
+      tabs.append(h('button', { type: 'button', 'class': 'chip', dataset: { key: 'metatab|' + i, idx: String(i) }, 'aria-pressed': String(i === state.metaIdx), onclick: function () { state.metaIdx = i; refreshMeta(); } }, m.page));
+    });
+    s.append(tabs, h('div', { id: 'metaBody', 'class': 'meta-body' }));
+    return s;
+  }
+  function refreshMeta() {
+    var body = $('#metaBody'), R = cur();
+    if (!body || !R.meta.length) return;
+    var i = state.metaIdx, m = R.meta[i], orig = (R.meta_ai || [])[i];
+    $all('#meta .chips button').forEach(function (b) { b.setAttribute('aria-pressed', String(Number(b.dataset.idx) === i)); });
+    body.replaceChildren();
+    var ti = h('input', { type: 'text', id: 'meta-title', maxlength: '120', 'aria-describedby': 'meta-tc' });
+    ti.value = m.title;
+    var de = h('textarea', { id: 'meta-desc', maxlength: '240', 'aria-describedby': 'meta-dc' });
+    de.value = m.description;
+    var tc = h('span', { id: 'meta-tc', 'class': 'count' }), dc = h('span', { id: 'meta-dc', 'class': 'count' });
+    var restoreBtn = h('button', { type: 'button', 'class': 'btn small', id: 'metaRestore' }, '還原 AI 建議');
+    function counts() {
+      var a = len(m.title), b = len(m.description);
+      tc.textContent = '標題 ' + a + ' 字（常見建議 30 字以內）';
+      tc.className = 'count' + (a > 30 ? ' over' : '');
+      dc.textContent = '描述 ' + b + ' 字（常見建議 80 字左右）';
+      dc.className = 'count' + (b > 90 ? ' over' : '');
+      restoreBtn.hidden = !orig || (orig.title === m.title && orig.description === m.description);
+    }
+    function sync() { var st = $('#serp-title'), sd = $('#serp-desc'); if (st) st.textContent = m.title || '（沒有標題）'; if (sd) sd.textContent = m.description; counts(); saveSoon(); reportSoon(); }
+    ti.addEventListener('input', function () { m.title = ti.value.replace(/\s+/g, ' '); sync(); });
+    de.addEventListener('input', function () { m.description = de.value.replace(/\s+/g, ' '); sync(); });
+    restoreBtn.addEventListener('click', function () { if (!orig) return; m.title = orig.title; m.description = orig.description; ti.value = m.title; de.value = m.description; sync(); toast('已還原 AI 的建議'); });
+    body.append(h('div', { 'class': 'meta-edit' },
+      h('div', { 'class': 'field' }, h('label', { 'for': 'meta-title' }, '頁面標題（title）'), ti, tc),
+      h('div', { 'class': 'field' }, h('label', { 'for': 'meta-desc' }, '描述（description）'), de, dc),
+      h('div', { 'class': 'meta-info' }, h('p', null, h('b', null, 'H1 建議：'), m.h1 || '—'), h('p', null, h('b', null, '網址：'), m.slug)),
+      h('div', { 'class': 'actions' }, restoreBtn)));
+    var dev = h('div', { 'class': 'seg', role: 'group', 'aria-label': '預覽裝置' });
+    [['mobile', '手機'], ['desktop', '電腦']].forEach(function (d) {
+      dev.append(h('button', { type: 'button', 'aria-pressed': String(state.serp === d[0]), onclick: function () { state.serp = d[0]; save(); refreshMeta(); } }, d[1]));
+    });
+    var host = siteHost(), brand = curInputs().brand;
+    var crumbs = host + (m.slug && m.slug !== '/' ? ' › ' + m.slug.replace(/^\//, '').split('/').join(' › ') : '');
+    body.append(h('div', { 'class': 'serp-wrap' },
+      h('div', { 'class': 'filters' }, h('span', { 'class': 'mini' }, 'Google 搜尋結果外觀示意'), dev),
+      h('div', { 'class': 'serp', 'data-device': state.serp, 'aria-label': '搜尋結果預覽' },
+        h('div', { 'class': 'serp-site' }, h('span', { 'class': 'serp-fav', 'aria-hidden': 'true' }, Array.from(brand || '?')[0]), h('div', { 'class': 'serp-meta' }, h('div', { 'class': 'serp-name' }, brand), h('div', { 'class': 'serp-url' }, 'https://' + crumbs))),
+        h('div', { 'class': 'serp-title', id: 'serp-title' }, m.title || '（沒有標題）'),
+        h('div', { 'class': 'serp-desc', id: 'serp-desc' }, m.description)),
+      h('p', { 'class': 'hint' }, 'Google 沒有公布固定字數上限，太長會被截斷，也可能改寫你的標題和描述。這裡只是外觀示意，網址用的是' + (curInputs().site ? '你的網站' : '第一個候選網域') + '。')));
+    counts();
+  }
+
+  function secContent() {
+    var R = cur();
+    var s = sec('content', '內容', '內容規劃', '依建議的製作順序排列；搜尋階段代表讀者在決策流程的哪一步。');
+    appendKid(s, missingNote(2));
+    var ol = h('ol', { 'class': 'plan' });
+    R.content.forEach(function (c) {
+      ol.append(h('li', null, h('div', { 'class': 'plan-body' },
+        h('p', { 'class': 'plan-title' }, c.title),
+        h('p', { 'class': 'plan-meta' }, h('span', { 'class': 'tag' }, c.format), h('span', { 'class': 'tag' }, c.stage), c.keyword ? '主關鍵字：' + c.keyword : null),
+        c.outline.length ? h('ul', { 'class': 'plain' }, c.outline.map(function (o) { return h('li', null, o); })) : null)));
+    });
+    if (R.content.length) s.append(ol);
+    return s;
+  }
+
+  function checkItem(key, titleText, bodyText) {
+    var V = view();
+    var cb = h('input', { type: 'checkbox', id: 'chk-' + key });
+    cb.checked = !!V.checks[key];
+    cb.addEventListener('change', function () { if (cb.checked) V.checks[key] = true; else delete V.checks[key]; save(); refreshReport(); });
+    return h('label', { 'class': 'check', 'for': 'chk-' + key }, cb, h('span', null, titleText ? h('b', null, titleText) : null, bodyText));
+  }
+  function buildJsonLd() {
+    var inp = curInputs(), R = cur();
+    var url = inp.site ? (/^https?:\/\//i.test(inp.site) ? inp.site : 'https://' + inp.site) : 'https://【請填網站網址】';
+    var obj = {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: inp.brand,
+      url: url,
+      description: R.positioning || inp.offer,
+      telephone: '【請填電話】',
+      address: { '@type': 'PostalAddress', streetAddress: '【請填地址】', addressLocality: '【請填鄉鎮市區】', addressRegion: '【請填縣市】', addressCountry: 'TW' },
+      areaServed: regionsOf(inp)
+    };
+    return '<script type="application/ld+json">\n' + JSON.stringify(obj, null, 2) + '\n</' + 'script>';
+  }
+  function secOptimize() {
+    var R = cur();
+    var s = sec('optimize', '優化', '在地 SEO 與頁面優化', '做完就勾起來，勾選會寫進 Markdown 報告。');
+    appendKid(s, missingNote(3));
+    if (R.local.length) {
+      s.append(h('h3', { 'class': 'sub-h' }, '在地 SEO'));
+      s.append(h('div', { 'class': 'checks' }, R.local.map(function (x, i) { return checkItem('l' + i, x.title, x.action); })));
+    }
+    if (R.onpage.length) {
+      s.append(h('h3', { 'class': 'sub-h' }, '頁面優化'));
+      s.append(h('div', { 'class': 'checks' }, R.onpage.map(function (x, i) { return checkItem('o' + i, null, x); })));
+    }
+    s.append(h('h3', { 'class': 'sub-h' }, 'LocalBusiness 結構化資料範本'));
+    s.append(h('p', { 'class': 'hint' }, '貼到網站首頁的 <head> 裡。【請填】的欄位要換成真的資料；沒有實體門市可以刪掉 address 整段。'));
+    s.append(h('pre', { id: 'jsonld', 'class': 'code', tabindex: '0' }, buildJsonLd()));
+    s.append(h('div', { 'class': 'actions' }, h('button', { type: 'button', 'class': 'btn small', onclick: function () { copyText($('#jsonld').textContent, '已複製結構化資料範本'); } }, '複製範本')));
+    return s;
+  }
+
+  function trendsUrl(kw) { return 'https://trends.google.com/trends/explore?date=today%2012-m&geo=TW&hl=zh-TW&q=' + encodeURIComponent(kw); }
+  function secTrends() {
+    var R = cur();
+    var s = sec('trends', '熱度', '搜尋熱度與季節', '這一段的淡旺季是依產業性質推論，沒有使用搜尋量資料；真實數字請點下面的官方工具。');
+    appendKid(s, missingNote(3));
+    if (R.season) {
+      var se = R.season;
+      var row = function (k, v) { return v ? h('div', null, h('dt', null, k), h('dd', null, v)) : null; };
+      s.append(h('dl', { 'class': 'season' }, row('可能的旺季（推論）', se.peak), row('可能的淡季（推論）', se.low), row('推論依據', se.why)));
+      if (se.related.length) s.append(h('div', null, h('p', { 'class': 'mini' }, '相關的延伸搜尋字（推論）'), h('div', { 'class': 'kchips' }, se.related.map(function (k) { return h('span', { 'class': 'kchip' }, k); }))));
+    }
+    var top = R.keywords.filter(function (k) { return k.priority === '高'; });
+    if (top.length < 3) top = top.concat(R.keywords.filter(function (k) { return k.priority === '中'; }));
+    top = top.slice(0, 6);
+    s.append(h('h3', { 'class': 'sub-h' }, '看真實數據'));
+    s.append(h('ul', { 'class': 'linklist' },
+      top.map(function (k) { return h('li', null, h('span', null, k.keyword), h('a', { 'class': 'btn small', href: trendsUrl(k.keyword), target: '_blank', rel: 'noopener noreferrer' }, 'Google 趨勢 ↗')); }),
+      h('li', null, h('span', null, '各關鍵字的月搜尋量'), h('a', { 'class': 'btn small', href: KP_URL, target: '_blank', rel: 'noopener noreferrer' }, '關鍵字規劃工具 ↗')),
+      h('li', null, h('span', null, '自己網站實際帶來點擊的字'), h('a', { 'class': 'btn small', href: GSC_URL, target: '_blank', rel: 'noopener noreferrer' }, 'Search Console ↗'))));
+    s.append(h('p', { 'class': 'hint' }, 'Google 趨勢顯示的是相對熱度（台灣、近 12 個月），不是搜尋次數。關鍵字規劃工具免費，但要先有 Google Ads 帳戶並建立廣告活動才能使用。'));
+    return s;
+  }
+
+  var BASIS_LABEL = { fetched: '依抓到的競品網頁', provided: '依你貼上的競品內容', general: '沒有競品頁面資料，屬一般推論' };
+  function secCompetitor() {
+    var R = cur(), E = entry(), C = R.competitor;
+    var s = sec('competitor', '競品', '競品分析', isExample() ? '範例內容（虛構競品）。完成你自己的分析後，就能在這裡分析真正的競品。' : '填競品網址，網站會去抓對方首頁的標題、描述和內文再分析；抓不到時可以貼上競品內容。');
+    if (C && !state.compEditing) {
+      s.append(h('p', null, h('b', null, '分析對象：'), C.name || '競爭對手', '・', BASIS_LABEL[C.basis] || BASIS_LABEL.general, C.at ? '・' + fmtTime(C.at) : ''));
+      if (C.page && (C.page.title || C.page.description || C.page.h1)) {
+        s.append(h('div', { 'class': 'page-box' },
+          h('p', null, h('b', null, '抓到的競品網頁'), C.url ? '（' + C.url + '）' : ''),
+          C.page.title ? h('p', null, '標題：' + C.page.title) : null,
+          C.page.description ? h('p', null, '描述：' + C.page.description) : null,
+          C.page.h1 ? h('p', null, 'H1：' + C.page.h1) : null));
+      }
+      if (C.fetchError) s.append(h('p', { 'class': 'hint' }, '抓不到競品網頁：' + C.fetchError));
+      if (C.positioning) s.append(h('p', { 'class': 'lead' }, C.positioning));
+      var grid = h('div', { 'class': 'grid2' });
+      C.gaps.forEach(function (g) {
+        grid.append(h('article', { 'class': 'card' },
+          h('div', { 'class': 'gap-head' }, h('span', { 'class': 'lvl ' + LEVEL_CLASS[g.level] }, g.level), h('b', null, g.dimension)),
+          g.detail ? h('p', null, g.detail) : null,
+          g.counter ? h('p', null, h('b', null, '我方做法：'), g.counter) : null,
+          g.keywords.length ? h('div', null, h('p', { 'class': 'mini' }, '可以搶的關鍵字（點一下加入關鍵字清單）'), h('div', { 'class': 'kchips' }, g.keywords.map(function (k) { return addKwButton(k, g); }))) : null,
+          g.page ? h('p', { 'class': 'kw-page' }, '建議頁面：' + g.page) : null));
+      });
+      s.append(grid);
+      if (C.quick_wins.length) {
+        s.append(h('h3', { 'class': 'sub-h' }, '先做這幾件事'));
+        s.append(h('ol', { 'class': 'plan' }, C.quick_wins.map(function (q) {
+          return h('li', null, h('div', { 'class': 'plan-body' }, q.when ? h('span', { 'class': 'when' }, q.when) : null, h('p', { 'class': 'plan-title' }, q.action), q.why ? h('p', { 'class': 'kw-page' }, q.why) : null));
+        })));
+      }
+      if (C.link_sources.length) {
+        s.append(h('h3', { 'class': 'sub-h' }, '外部連結可以從哪裡爭取'));
+        s.append(h('div', { 'class': 'grid2' }, C.link_sources.map(function (l) {
+          return h('article', { 'class': 'card' }, h('b', null, l.type), l.approach ? h('p', null, l.approach) : null,
+            l.anchor ? h('p', { 'class': 'kw-page' }, '建議連結文字：' + l.anchor) : null, l.pitch ? h('p', { 'class': 'kw-page' }, '提案主旨：' + l.pitch) : null);
+        })));
+      }
+      if (C.verify.length) s.append(h('div', null, h('p', { 'class': 'mini' }, '要用真實工具確認的地方'), h('ul', { 'class': 'plain' }, C.verify.map(function (x) { return h('li', null, x); }))));
+      if (E) s.append(h('div', { 'class': 'actions' }, h('button', { type: 'button', 'class': 'btn small', id: 'compRedo', onclick: function () { state.compEditing = true; refreshSection('competitor'); var n = $('#c-url'); if (n) n.focus(); } }, '重新分析競品')));
+      return s;
+    }
+    if (!E) { s.append(h('p', { 'class': 'empty' }, '完成一次分析後，就能在這裡分析競品。')); return s; }
+    var ci = E.compInput || {};
+    var guess = /^(https?:\/\/)?[a-z0-9.-]+\.[a-z]{2,}/i.test(E.inputs.competitors) ? E.inputs.competitors : '';
+    var urlIn = h('input', { type: 'text', id: 'c-url', inputmode: 'url', autocapitalize: 'off', spellcheck: 'false', maxlength: '300', placeholder: 'https://competitor.com.tw', value: ci.url || guess });
+    var nameIn = h('input', { type: 'text', id: 'c-name', maxlength: '160', placeholder: '例：某某水電行（選填）', value: ci.name || (guess ? '' : E.inputs.competitors) || '' });
+    var pageIn = h('textarea', { id: 'c-page', maxlength: '3000', placeholder: '選填：抓不到網頁時，貼上競品首頁的標題、描述或主要文字（最多 3000 字）' });
+    pageIn.value = ci.page || '';
+    s.append(h('div', { 'class': 'field' }, h('label', { 'for': 'c-url' }, '競品網址'), urlIn));
+    s.append(h('div', { 'class': 'field' }, h('label', { 'for': 'c-name' }, '競品名稱'), nameIn));
+    s.append(h('div', { 'class': 'field' }, h('label', { 'for': 'c-page' }, '競品網頁內容'), pageIn));
+    s.append(h('div', { 'class': 'actions' },
+      h('button', { type: 'button', id: 'compBtn', 'class': 'btn primary', onclick: runCompetitor, disabled: busy || !aiReady() }, '分析競品'),
+      h('button', { type: 'button', id: 'compStop', 'class': 'btn', hidden: !compRunning, onclick: function () { if (compCtl) compCtl.abort(); } }, '停止'),
+      C ? h('button', { type: 'button', 'class': 'btn quiet', disabled: compRunning, onclick: function () { state.compEditing = false; refreshSection('competitor'); } }, '取消') : null));
+    s.append(h('div', { id: 'compRun', 'class': 'run', hidden: !compRunning }, h('div', { 'class': 'run-top' }, h('b', null, '正在抓競品網頁並分析…'), h('span', { id: 'compRunTime', 'class': 'mono' }, '0 秒'))));
+    s.append(h('p', { id: 'compMsg', 'class': 'msg', role: 'status', hidden: true }));
+    return s;
+  }
+  function addKwButton(kw, g) {
+    var R = cur();
+    var has = R.keywords.some(function (k) { return k.keyword === kw; });
+    return h('button', {
+      type: 'button', 'class': 'kadd', dataset: { key: 'kadd|' + kw }, disabled: has, 'aria-label': has ? kw + ' 已在關鍵字清單' : '把 ' + kw + ' 加入關鍵字清單',
+      onclick: function () {
+        if (R.keywords.some(function (k) { return k.keyword === kw; })) return;
+        R.keywords.push({ keyword: kw, type: '比較', intent: '比較', priority: '中', region: '全區', reason: '競品缺口：' + g.dimension, page: g.page, from: 'comp' });
+        var order = { '高': 0, '中': 1, '低': 2 };
+        R.keywords = R.keywords.map(function (k, i) { return [k, i]; }).sort(function (a, b) { return (order[a[0].priority] - order[b[0].priority]) || (a[1] - b[1]); }).map(function (x) { return x[0]; });
+        if (!isExample()) save();
+        refreshSection('overview'); refreshSection('keywords'); refreshSection('competitor'); refreshReport();
+        toast('已把「' + kw + '」加入關鍵字清單');
+      }
+    }, (has ? '✓ ' : '＋ ') + kw);
+  }
+
+  function secAivis() {
+    var a = cur().ai_visibility;
+    var s = sec('aivis', 'AI 能見度', 'AI 搜尋能見度', '讓 AI 助理回答時，更可能正確提到這個品牌。');
+    function group(title, arr) { return arr.length ? h('div', null, h('p', { 'class': 'mini' }, title), h('ul', { 'class': 'plain' }, arr.map(function (x) { return h('li', null, x); }))) : null; }
+    appendKid(s, [group('潛在客戶可能問 AI 的問題', a.questions), group('做法', a.actions), group('網站上要寫清楚的事實', a.facts)]);
+    return s;
+  }
+
+  function allDomains() {
+    var R = cur(), out = [];
+    R.domains.forEach(function (d) { state.tlds.forEach(function (t) { out.push(d.name + '.' + t); }); });
+    state.custom.forEach(function (d) { out.push(d); });
+    return uniq(out);
+  }
+  function lookupFor(domain) { return /\.tw$/.test(domain) ? LOOKUP_TW : LOOKUP_OTHER; }
+  function secDomains() {
+    var R = cur();
+    var s = sec('domains', '網域', '網域查核');
+    appendKid(s, missingNote(4));
+    s.append(h('div', { 'class': 'notice' },
+      h('p', null, '網域狀態是向官方註冊資料庫（RDAP）即時查詢的結果。'),
+      h('p', { 'class': 'hint' }, '查無註冊紀錄不代表一定買得到，例如保留字或溢價網域，最後以註冊商的結帳頁為準。查不到的字尾可以按「自己確認」到 TWNIC 或 ICANN 查。')));
+    var tl = h('div', { 'class': 'chips', role: 'group', 'aria-label': '要查的網域字尾' });
+    TLD_LIST.forEach(function (t) {
+      tl.append(h('button', { type: 'button', 'class': 'chip', dataset: { key: 'tld|' + t }, 'aria-pressed': String(state.tlds.indexOf(t) >= 0), onclick: function () { toggleTld(t); } }, '.' + t));
+    });
+    s.append(h('div', { 'class': 'tld-row' }, h('span', { 'class': 'flabel' }, '要查的字尾'), tl));
+    var any = Object.keys(checking).length > 0;
+    var anyStat = allDomains().some(function (d) { return !!state.dstat[d]; });
+    s.append(h('div', { 'class': 'actions' },
+      h('button', { type: 'button', id: 'checkAll', 'class': 'btn small primary', dataset: { key: 'checkall' }, disabled: any || !domainReady(), onclick: function () { checkDomains(allDomains(), true); } }, any ? '查詢中…' : (anyStat ? '全部重新查詢' : '全部查詢')),
+      !domainReady() ? h('span', { 'class': 'hint' }, backend.state === 'checking' ? '正在連線後端…' : '後端沒有連上，暫時不能查詢。') : null));
+    var wrap = h('div', { 'class': 'dom-groups' });
+    R.domains.forEach(function (d) { wrap.append(domGroup(h('span', { 'class': 'base' }, d.name), d.why, state.tlds.map(function (t) { return d.name + '.' + t; }), false)); });
+    if (state.custom.length) wrap.append(domGroup(h('span', { 'class': 'title' }, '你加入的網域'), null, state.custom, true));
+    if (!R.domains.length && !state.custom.length) wrap.append(h('p', { 'class': 'empty' }, '還沒有網域，可以在下面自己加入。'));
+    s.append(wrap);
+    var inp = h('input', { id: 'f-domain', type: 'text', inputmode: 'url', autocapitalize: 'off', autocomplete: 'off', spellcheck: 'false', maxlength: '80', placeholder: '自己想查的網域，例：mybrand.com.tw', 'aria-label': '自己想查的網域', 'aria-describedby': 'e-domain' });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addCustomDomain(); } });
+    s.append(h('div', { 'class': 'addrow' }, inp, h('button', { type: 'button', 'class': 'btn', onclick: addCustomDomain }, '加入並查詢')));
+    s.append(h('p', { id: 'e-domain', 'class': 'err', hidden: true }));
+    return s;
+  }
+  function domGroup(titleNode, why, fulls, removable) {
+    var g = h('div', { 'class': 'dom-group' }, h('div', { 'class': 'dom-head' }, titleNode, why ? h('p', { 'class': 'hint' }, why) : null));
+    fulls.forEach(function (full) { g.append(domRow(full, removable)); });
+    return g;
+  }
+  function domStateText(full) {
+    if (checking[full]) return ['查詢中…', 'st-none'];
+    var m = state.dstat[full];
+    if (!m) return ['未查', 'st-none'];
+    return [DSTAT_LABEL[m.s] || '無法判斷', m.s === 'free' ? 'st-ok' : m.s === 'taken' ? 'st-taken' : 'st-none'];
+  }
+  function domDetail(full) {
+    var m = state.dstat[full];
+    if (!m || checking[full]) return '';
+    var bits = [];
+    if (m.s === 'taken') {
+      if (m.registrar) bits.push('註冊商 ' + m.registrar);
+      if (m.expires) bits.push('到期 ' + m.expires);
+    } else if (m.note) bits.push(String(m.note).replace(/[。.]+$/, ''));
+    if (m.at) bits.push(shortDate(m.at) + ' 查詢');
+    return bits.join('・');
+  }
+  function domRow(full, removable) {
+    var lk = lookupFor(full), st = domStateText(full), detail = domDetail(full);
+    var link = h('a', { 'class': 'btn small quiet', href: lk.url, target: '_blank', rel: 'noopener noreferrer', dataset: { key: 'look|' + full }, 'aria-label': '複製 ' + full + ' 並打開 ' + lk.label + ' 查詢頁' }, '自己確認（' + lk.label + '）↗');
+    link.addEventListener('click', function () { copyQuiet(full, lk.label); });
+    return h('div', { 'class': 'dom-row' },
+      h('div', { 'class': 'dom-id' }, h('span', { 'class': 'dom-name' }, full), h('span', { 'class': 'dom-state ' + st[1] }, st[0])),
+      detail ? h('p', { 'class': 'dom-detail' }, detail) : null,
+      h('div', { 'class': 'dom-actions' },
+        h('button', { type: 'button', 'class': 'btn small', dataset: { key: 'recheck|' + full }, disabled: !!checking[full] || !domainReady(), onclick: function () { checkDomains([full], true); } }, state.dstat[full] ? '重新查詢' : '查詢'),
+        link,
+        removable ? h('button', { type: 'button', 'class': 'btn small quiet', dataset: { key: 'rm|' + full }, onclick: function () { removeCustomDomain(full); } }, '移除') : null));
+  }
+  function toggleTld(t) {
+    var at = state.tlds.indexOf(t);
+    if (at >= 0) { if (state.tlds.length === 1) { toast('至少要留一個字尾'); return; } state.tlds.splice(at, 1); }
+    else state.tlds = TLD_LIST.filter(function (x) { return x === t || state.tlds.indexOf(x) >= 0; });
+    save(); refreshSection('domains'); refreshReport(); refreshMeta();
+    if (!isExample()) checkDomains(allDomains(), false);
+  }
+  function addCustomDomain() {
+    var inp = $('#f-domain'), r = cleanDomain(inp.value), err = $('#e-domain');
+    if (!r.ok) { err.textContent = r.msg; err.hidden = false; inp.setAttribute('aria-invalid', 'true'); inp.focus(); return; }
+    if (state.custom.indexOf(r.domain) < 0 && allDomains().indexOf(r.domain) < 0) state.custom.push(r.domain);
+    else toast(r.domain + ' 已經在清單裡');
+    save(); refreshSection('domains'); refreshReport();
+    checkDomains([r.domain], false);
+    var again = $('#f-domain'); if (again) again.focus();
+  }
+  function removeCustomDomain(full) {
+    state.custom = state.custom.filter(function (x) { return x !== full; });
+    save(); refreshSection('domains'); refreshReport();
+    var again = $('#f-domain'); if (again) again.focus();
+  }
+
+  function secVerify() {
+    var R = cur();
+    var s = sec('verify', '驗證', '要用真實數據驗證的地方', '這份策略沒有使用搜尋量資料。下面這些判斷，請用真實數據確認後再投入資源。');
+    appendKid(s, missingNote(4));
+    if (R.data_needed.length) s.append(h('ul', { 'class': 'plain' }, R.data_needed.map(function (x) { return h('li', null, x); })));
+    if (R.assumptions.length) s.append(h('div', null, h('p', { 'class': 'mini' }, '分析時做的假設'), h('ul', { 'class': 'plain' }, R.assumptions.map(function (x) { return h('li', null, x); }))));
+    return s;
+  }
+
+  function secReport() {
+    var s = sec('report', '報告', '報告', 'Markdown 版適合放進文件或網站；LINE 版是重點摘要，可以直接貼到 LINE。你在上面改的標題、勾選和網域查詢結果都會寫進去。');
+    function tab(id, label) { return h('button', { type: 'button', role: 'tab', id: 'tab-' + id, 'class': 'tab', 'aria-selected': String(state.tab === id), 'aria-controls': 'reportText', onclick: function () { state.tab = id; refreshReport(); } }, label); }
+    s.append(h('div', { 'class': 'report-box' }, h('div', { 'class': 'tabs', role: 'tablist', 'aria-label': '報告格式' }, tab('md', 'Markdown'), tab('line', 'LINE 文字版')), h('pre', { id: 'reportText', 'class': 'report', role: 'tabpanel', tabindex: '0' })));
+    s.append(h('div', { 'class': 'actions' },
+      h('button', { type: 'button', id: 'copyReport', 'class': 'btn primary', onclick: function () { copyText($('#reportText').textContent, '已複製報告', true); } }, '複製報告'),
+      h('button', { type: 'button', id: 'saveReport', 'class': 'btn', onclick: saveReport }, '下載')));
+    s.append(h('textarea', { id: 'copyFallback', 'class': 'copy-fallback', readonly: true, hidden: true, 'aria-label': '請手動複製的文字' }));
+    return s;
+  }
+  var reportTimer = null;
+  function reportSoon() { clearTimeout(reportTimer); reportTimer = setTimeout(refreshReport, 300); }
+  function refreshReport() {
+    var pre = $('#reportText');
+    if (!pre) return;
+    $all('#report .tab').forEach(function (t) { t.setAttribute('aria-selected', String(t.id === 'tab-' + state.tab)); });
+    pre.setAttribute('aria-labelledby', 'tab-' + state.tab);
+    pre.textContent = state.tab === 'md' ? buildMarkdown() : buildLine();
+    var sb = $('#saveReport'); if (sb) sb.textContent = state.tab === 'md' ? '下載 .md 檔' : '下載 .txt 檔';
+    var fb = $('#copyFallback'); if (fb) fb.hidden = true;
+    var j = $('#jsonld'); if (j) j.textContent = buildJsonLd();
+  }
+
+  function dstatLine(d) {
+    var m = state.dstat[d];
+    if (!m) return ['未查', '—', '—'];
+    var note = m.s === 'taken' ? [m.registrar ? '註冊商 ' + m.registrar : '', m.expires ? '到期 ' + m.expires : ''].filter(Boolean).join('，') : (m.note || '');
+    return [DSTAT_LABEL[m.s] || '無法判斷', note || '—', m.at ? String(m.at).slice(0, 10) : '—'];
+  }
+  function buildMarkdown() {
+    var R = cur(), inp = curInputs(), E = entry(), V = view(), L = [];
+    function esc(x) { return String(x == null ? '' : x).replace(/\|/g, '\\|').replace(/\r?\n/g, ' '); }
+    function list(arr) { arr.forEach(function (x) { L.push('- ' + x); }); }
+    L.push('# ' + inp.brand + ' 搜尋策略報告', '');
+    if (!E) L.push('> 這是範例報告（虛構品牌），示範輸出的格式。', '');
+    L.push('- 產出時間：' + (E ? fmtTime(E.at) : '範例'));
+    L.push('- 分析：' + (E ? (aiLabel(E) || 'AI') : '範例資料'));
+    L.push('- 產業、產品與服務：' + inp.offer);
+    if (inp.features) L.push('- 核心特色：' + inp.features);
+    L.push('- 目標地區：' + regionsOf(inp).join('、'));
+    if (inp.audience) L.push('- 目標客群：' + inp.audience);
+    if (inp.seeds) L.push('- 想主打的關鍵字：' + inp.seeds);
+    if (inp.notes) L.push('- 補充事項：' + inp.notes);
+    if (inp.competitors) L.push('- 競爭對手：' + inp.competitors);
+    if (inp.site) L.push('- 現有網站：' + inp.site);
+    if (E && E.missing.length) L.push('- 沒有完成的段落：' + E.missing.map(partLabel).join('、'));
+    L.push('', '> 這份報告沒有使用搜尋量、排名或外部連結資料。關鍵字優先度是依搜尋意圖、離成交多近和地區相關性判斷；請依文末「要用真實數據驗證的地方」查核。', '');
+    L.push('## 策略總結', '', R.summary, '');
+    if (R.positioning) L.push('**搜尋定位：**' + R.positioning, '');
+    L.push('## 關鍵字策略', '', '| 優先度 | 關鍵字 | 類型 | 意圖 | 地區 | 對應頁面 | 判斷依據 |', '|---|---|---|---|---|---|---|');
+    R.keywords.forEach(function (k) { L.push('| ' + k.priority + ' | ' + esc(k.keyword) + ' | ' + k.type + ' | ' + k.intent + ' | ' + esc(k.region) + ' | ' + esc(k.page) + ' | ' + esc(k.reason) + ' |'); });
+    if (R.regions.length) {
+      L.push('', '## 地區策略（GEO）', '');
+      R.regions.forEach(function (r) {
+        L.push('### ' + r.region, '');
+        if (r.angle) L.push('切角：' + r.angle, '');
+        if (r.keywords.length) L.push('關鍵字：' + r.keywords.join('、'), '');
+        if (r.actions.length) { L.push('在地做法：'); list(r.actions); L.push(''); }
+      });
+    }
+    if (R.meta.length) {
+      L.push('## 標題與描述（Meta）', '');
+      R.meta.forEach(function (m) {
+        L.push('### ' + m.page + '（' + m.slug + '）', '');
+        L.push('- Title：' + m.title, '- Description：' + m.description);
+        if (m.h1) L.push('- H1：' + m.h1);
+        L.push('');
+      });
+    }
+    if (R.content.length) {
+      L.push('## 內容規劃（依製作順序）', '');
+      R.content.forEach(function (c, i) {
+        L.push((i + 1) + '. **' + c.title + '**（' + c.format + '・' + c.stage + '）' + (c.keyword ? '｜主關鍵字：' + c.keyword : ''));
+        c.outline.forEach(function (o) { L.push('   - ' + o); });
+      });
+    }
+    if (R.local.length) {
+      L.push('', '## 在地 SEO 檢核', '');
+      R.local.forEach(function (x, i) { L.push('- [' + (V.checks['l' + i] ? 'x' : ' ') + '] **' + x.title + '：**' + x.action); });
+    }
+    if (R.onpage.length) {
+      L.push('', '## 頁面優化檢查', '');
+      R.onpage.forEach(function (o, i) { L.push('- [' + (V.checks['o' + i] ? 'x' : ' ') + '] ' + o); });
+    }
+    if (R.season) {
+      var se = R.season;
+      L.push('', '## 搜尋熱度與季節（推論）', '');
+      if (se.peak) L.push('- 可能的旺季：' + se.peak);
+      if (se.low) L.push('- 可能的淡季：' + se.low);
+      if (se.why) L.push('- 推論依據：' + se.why);
+      if (se.related.length) L.push('- 相關的延伸搜尋字：' + se.related.join('、'));
+      L.push('', '> 這是依產業性質的推論。真實熱度請用 Google 趨勢（https://trends.google.com/trends/explore?geo=TW）查看，搜尋量請用 Google 關鍵字規劃工具。');
+    }
+    var C = R.competitor;
+    if (C) {
+      L.push('', '## 競品分析：' + (C.name || '競爭對手'), '');
+      L.push('> ' + (BASIS_LABEL[C.basis] || BASIS_LABEL.general) + '。沒有使用排名、流量或外部連結資料。', '');
+      if (C.page && C.page.title) L.push('抓到的競品網頁標題：' + C.page.title, '');
+      if (C.positioning) L.push(C.positioning, '');
+      C.gaps.forEach(function (g, i) {
+        L.push((i + 1) + '. **[' + g.level + '] ' + g.dimension + '**');
+        if (g.detail) L.push('   - 缺口：' + g.detail);
+        if (g.counter) L.push('   - 我方做法：' + g.counter);
+        if (g.keywords.length) L.push('   - 可以搶的關鍵字：' + g.keywords.join('、'));
+        if (g.page) L.push('   - 建議頁面：' + g.page);
+      });
+      if (C.quick_wins.length) { L.push('', '### 先做這幾件事', ''); C.quick_wins.forEach(function (q, i) { L.push((i + 1) + '. ' + (q.when ? q.when + '：' : '') + q.action + (q.why ? '（' + q.why + '）' : '')); }); }
+      if (C.link_sources.length) {
+        L.push('', '### 外部連結可以從哪裡爭取', '');
+        C.link_sources.forEach(function (l) { L.push('- **' + l.type + '：**' + l.approach + (l.anchor ? '｜建議連結文字：' + l.anchor : '') + (l.pitch ? '｜提案主旨：' + l.pitch : '')); });
+      }
+      if (C.verify.length) { L.push('', '要用真實工具確認：'); list(C.verify); }
+    }
+    if (R.ai_visibility) {
+      var a = R.ai_visibility;
+      L.push('', '## AI 搜尋能見度（生成式引擎最佳化）', '');
+      if (a.questions.length) { L.push('潛在客戶可能問 AI 的問題：'); list(a.questions); L.push(''); }
+      if (a.actions.length) { L.push('做法：'); list(a.actions); L.push(''); }
+      if (a.facts.length) { L.push('網站上要寫清楚的事實：'); list(a.facts); }
+    }
+    L.push('', '## 網域查核', '', '| 網域 | 狀態 | 補充 | 查詢日期 |', '|---|---|---|---|');
+    allDomains().forEach(function (d) { var x = dstatLine(d); L.push('| ' + d + ' | ' + x[0] + ' | ' + esc(x[1]) + ' | ' + x[2] + ' |'); });
+    L.push('', '> 狀態來自官方註冊資料庫（RDAP）的即時查詢。查無註冊紀錄不代表一定買得到，以註冊商的結帳頁為準。');
+    if (R.domains.length) { L.push('', '候選名稱的理由：'); R.domains.forEach(function (d) { L.push('- ' + d.name + '：' + d.why); }); }
+    if (R.data_needed.length) { L.push('', '## 要用真實數據驗證的地方', ''); list(R.data_needed); }
+    if (R.assumptions.length) { L.push('', '## 分析假設', ''); list(R.assumptions); }
+    L.push('');
+    return L.join('\n');
+  }
+
+  function buildLine() {
+    var R = cur(), inp = curInputs(), E = entry(), L = [];
+    var day = E ? (function () { var d = new Date(E.at); return (d.getMonth() + 1) + '/' + d.getDate(); })() : '範例';
+    L.push('📍 ' + plain(inp.brand) + ' 搜尋策略重點（' + day + '）', '');
+    L.push('✅ 策略總結', plain(R.summary), '');
+    if (R.positioning) L.push('🎯 搜尋定位', plain(R.positioning), '');
+    var hi = R.keywords.filter(function (k) { return k.priority === '高'; });
+    if (hi.length) { L.push('🔑 優先關鍵字'); hi.slice(0, 10).forEach(function (k, i) { L.push(fw(i + 1) + plain(k.keyword) + '（' + plain(k.region) + '）'); }); L.push(''); }
+    if (R.regions.length) { L.push('🗺️ 地區切角'); R.regions.forEach(function (r, i) { L.push(fw(i + 1) + plain(r.region) + '：' + plain(r.angle)); }); L.push(''); }
+    if (R.content.length) { L.push('📝 先做這幾頁'); R.content.slice(0, 3).forEach(function (c, i) { L.push(fw(i + 1) + plain(c.title) + '（' + c.format + '）'); }); L.push(''); }
+    if (R.meta.length) { L.push('🏷️ 首頁標題'); L.push(plain(R.meta[0].title)); L.push(''); }
+    var C = R.competitor;
+    if (C && C.quick_wins.length) { L.push('🏁 對付競品，先做這幾件事'); C.quick_wins.forEach(function (q, i) { L.push(fw(i + 1) + (q.when ? plain(q.when) + '：' : '') + plain(q.action)); }); L.push(''); }
+    var doms = allDomains().filter(function (d) { var m = state.dstat[d]; return m && (m.s === 'free' || m.s === 'taken'); });
+    doms.sort(function (a, b) { return (state.dstat[a].s === 'free' ? 0 : 1) - (state.dstat[b].s === 'free' ? 0 : 1); });
+    L.push('🌐 網域查核');
+    if (doms.length) doms.forEach(function (d, i) { var m = state.dstat[d]; L.push(fw(i + 1) + d + '：' + (m.s === 'free' ? '查無註冊紀錄，可以試著購買' : '已被註冊' + (m.expires ? '（到期 ' + m.expires + '）' : ''))); });
+    else L.push('還沒查詢');
+    L.push('', '⚠️ 提醒：優先度和淡旺季是 AI 依產業性質判斷，沒有用搜尋量數據；網域查無註冊不代表一定買得到，以註冊商結帳頁為準。');
+    return L.join('\n');
+  }
+
+  /* ---------- 複製、下載、提示 ---------- */
+  var toastTimer = null;
+  function toast(text) {
+    var t = $('#toast');
+    t.textContent = text; t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, 3200);
+  }
+  function copyQuiet(text, label) {
+    try {
+      var p = navigator.clipboard && navigator.clipboard.writeText(text);
+      if (p && p.then) p.then(function () { toast('已複製 ' + text + '，到 ' + label + ' 查詢頁貼上就好'); }, function () { toast('請在 ' + label + ' 查詢頁輸入 ' + text); });
+      else toast('請在 ' + label + ' 查詢頁輸入 ' + text);
+    } catch (e) { toast('請在 ' + label + ' 查詢頁輸入 ' + text); }
+  }
+  function copyText(text, okMsg, inReport) {
+    function fail() {
+      var ta = inReport ? $('#copyFallback') : null;
+      if (ta) { ta.value = text; ta.hidden = false; ta.focus(); ta.select(); toast('沒辦法自動複製，已幫你選取文字，請手動複製'); }
+      else toast('沒辦法自動複製，請長按文字手動複製');
+    }
+    try {
+      var p = navigator.clipboard && navigator.clipboard.writeText(text);
+      if (p && p.then) p.then(function () { toast(okMsg); }, fail); else fail();
+    } catch (e) { fail(); }
+  }
+  function saveFile(name, text, mime) {
+    try {
+      var blob = new Blob([text], { type: mime || 'text/plain;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = name; a.rel = 'noopener';
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 2000);
+      toast('已下載：' + name);
+    } catch (e) { toast('這個瀏覽器不能直接下載，請改用複製'); }
+  }
+  function saveReport() {
+    var md = state.tab === 'md';
+    saveFile(safeName(curInputs().brand) + '-搜尋策略-' + ymdCompact(new Date()) + (md ? '.md' : '.txt'), md ? buildMarkdown() : buildLine(), md ? 'text/markdown;charset=utf-8' : 'text/plain;charset=utf-8');
+  }
+  function saveCsv() {
+    var R = cur();
+    function cell(x) { return '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"'; }
+    var rows = [['優先度', '關鍵字', '類型', '意圖', '地區', '對應頁面', '判斷依據', '來源']].concat(R.keywords.map(function (k) {
+      return [k.priority, k.keyword, k.type, k.intent, k.region, k.page, k.reason, k.from === 'comp' ? '競品缺口' : 'AI 分析'];
+    }));
+    saveFile(safeName(curInputs().brand) + '-關鍵字-' + ymdCompact(new Date()) + '.csv', '﻿' + rows.map(function (r) { return r.map(cell).join(','); }).join('\r\n'), 'text/csv;charset=utf-8');
+  }
+
+  /* ---------- 字級 ---------- */
+  function applyScale() {
+    document.documentElement.setAttribute('data-scale', state.scale);
+    $all('.scale button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.scale === state.scale)); });
+  }
+
+  /* ---------- 啟動 ---------- */
+  function bind() {
+    $all('.scale button').forEach(function (b) { b.addEventListener('click', function () { state.scale = b.dataset.scale; applyScale(); save(); }); });
+    $('#intake').addEventListener('submit', function (e) { e.preventDefault(); runAnalysis(); });
+    $('#stopBtn').addEventListener('click', function () { if (ctl) ctl.abort(); });
+    $('#retryInfo').addEventListener('click', loadInfo);
+    $('#addRegion').addEventListener('click', addCustomRegion);
+    $('#f-region').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addCustomRegion(); } });
+    [F.brand, F.offer, F.feat, F.aud, F.seeds, F.notes, F.comp, F.site].forEach(function (f) {
+      f.addEventListener('input', function () { markEdited(); if (f === F.brand) clearErr('brand'); if (f === F.offer) clearErr('offer'); });
+    });
+    F.aivis.addEventListener('change', markEdited);
+    F.code.addEventListener('input', function () { state.code = F.code.value.trim(); saveSoon(); });
+    $('#clearBtn').addEventListener('click', function () {
+      state.inputs = blankInputs(); state.edited = true;
+      renderForm(); save(); F.brand.focus();
+    });
+    var ps = $('#f-preset');
+    PRESETS.forEach(function (p) { ps.append(h('option', { value: p.id }, p.label)); });
+    ps.addEventListener('change', function () {
+      var p = PRESETS.filter(function (x) { return x.id === ps.value; })[0];
+      if (!p) return;
+      state.inputs = cleanInputs(clone(p.inputs)); state.edited = false;
+      ['brand', 'offer', 'region'].forEach(clearErr);
+      renderForm(); save();
+      ps.value = '';
+      toast('已填入範例：' + p.inputs.brand);
+    });
+  }
+
+  function init() {
+    EX.result = normalize(clone(EXAMPLE_RESULT), EXAMPLE_INPUTS);
+    restore();
+    grabForm();
+    applyScale();
+    renderForm();
+    if (state.code) $('#codeRow').hidden = false;
+    renderResults();
+    bind();
+    renderParts();
+    renderBackend();
+    loadInfo();
+  }
+  init();
+})();
+</script>
+</body>
+</html>
